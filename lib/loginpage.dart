@@ -1,33 +1,23 @@
-//import 'dart:convert';
-import 'dart:convert';
-import 'dart:developer';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as JSON;
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:salahly/dsitance.dart';
-import 'package:salahly/loginpage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:salahly/profile1.dart';
 import 'package:salahly/editprofile.dart';
 import 'package:salahly/categories.dart';
-import 'package:salahly/profile1.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:salahly/utilities.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter/rendering.dart';
+import 'package:flutter_svg/avd.dart';
 import 'package:flutter/services.dart';
-import 'package:salahly/categories.dart';
-import 'package:email_validator/email_validator.dart';
-import 'package:salahly/categories.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert' as JSON;
+import 'package:salahly/myColors.dart' as myColors;
+
+
+
 class LoginPage extends StatefulWidget {
 
   String x;
@@ -137,9 +127,10 @@ class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> formKey2 = GlobalKey<FormState>();
  bool _autovalidate = false;
   //final scaffoldKey = GlobalKey<ScaffoldState>();
-
+  final String assetName = 'assets/google2.svg';
   @override
   Widget build(BuildContext context) {
+    var deviceInfo = MediaQuery.of(context);
     final FirebaseAuth auth = FirebaseAuth.instance;
     Future<FirebaseUser> handleSignInEmail(String email,
         String password) async {
@@ -147,14 +138,7 @@ class _LoginPageState extends State<LoginPage> {
           formKey2.currentState.validate()) {
           formKey.currentState.save();
           formKey2.currentState.save();
-
-          //Scaffold
-          //ok=false;
-          //  .of(context)
-          // .showSnackBar(SnackBar(content: Text('saved')));
         }
-
-
       else {
 //    If all data are not valid then start auto validation.
         setState(() {
@@ -200,7 +184,7 @@ class _LoginPageState extends State<LoginPage> {
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.CENTER,
             timeInSecForIos: 1,
-            backgroundColor: Color(0xffAD0514),
+            backgroundColor: myColors.red,
             textColor: Colors.white
         );
       }
@@ -210,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.CENTER,
             timeInSecForIos: 1,
-            backgroundColor: Color(0xffAD0514),
+            backgroundColor: myColors.red,
             textColor: Colors.white
         );
       }
@@ -220,7 +204,7 @@ class _LoginPageState extends State<LoginPage> {
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.CENTER,
             timeInSecForIos: 1,
-            backgroundColor: Color(0xffAD0514),
+            backgroundColor: myColors.red,
             textColor: Colors.white
         );
       }
@@ -256,7 +240,8 @@ String validateEmail(String value)  {
           Container(
           alignment: Alignment.centerLeft,
           decoration: kBoxDecorationStyle,
-          height: 60.0,
+          height: 50.0,
+              //width: deviceInfo.size.height,
           child:Form(
             key: formKey,
             child: TextFormField(
@@ -268,14 +253,14 @@ String validateEmail(String value)  {
               decoration: InputDecoration(
                 border: InputBorder.none,
                 errorStyle: TextStyle(
-                  color:  Color(0xffFF0000),
+                  color:  myColors.red,
                   fontSize: 15.0,
                   fontFamily: 'OpenSans'
                 ),
                 contentPadding: EdgeInsets.only(top: 14.0),
                 prefixIcon: Icon(
                   Icons.email,
-                  color: Color(0xffAD0514),
+                  color: myColors.primaryText ,
                 ),
                 hintText: 'الايميل',
                 hintStyle: kHintTextStyle,
@@ -301,7 +286,7 @@ String validateEmail(String value)  {
           Container(
             alignment: Alignment.centerLeft,
             decoration: kBoxDecorationStyle,
-            height: 60.0,
+            height: 50.0,
       child:Form(
         key: formKey2,
             child: TextFormField(
@@ -315,7 +300,7 @@ String validateEmail(String value)  {
               ),
               decoration: InputDecoration(
                 errorStyle: TextStyle(
-                    color: Color(0xffFF0000),
+                    color: myColors.red,
                     fontSize: 15.0,
                     fontFamily: 'OpenSans'
                 ),
@@ -323,7 +308,7 @@ String validateEmail(String value)  {
                 contentPadding: EdgeInsets.only(top: 14.0),
                 prefixIcon: Icon(
                   Icons.lock,
-                  color:  Color(0xffAD0514),
+                  color:  myColors.primaryText,
                 ),
                 hintText: 'ادخل كلمة السر',
                 hintStyle: kHintTextStyle,
@@ -381,7 +366,7 @@ String validateEmail(String value)  {
         padding: EdgeInsets.symmetric(vertical: 25.0),
         width: double.infinity,
         child: RaisedButton(
-          elevation: 5.0,
+          elevation: 6.0,
           onPressed: () {
             handleSignInEmail(
                 _emailController.text, _passwordController.text);
@@ -389,17 +374,17 @@ String validateEmail(String value)  {
           },
           padding: EdgeInsets.all(15.0),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(10.0),
           ),
-          color:Color(0xffAD0514),
+          color:myColors.red,
           child: Text(
-            'LOGIN',
+            'Sign in',
             style: TextStyle(
               color: Colors.white,
               letterSpacing: 1.5,
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'OpenSans',
+              fontSize: 25.0,
+              //fontWeight: FontWeight.bold,
+              fontFamily: 'OpenSans SemiBold',
             ),
           ),
         ),
@@ -419,7 +404,6 @@ String validateEmail(String value)  {
           Text(
             'Sign in with',
             style: kLabelStyle,
-
           ),
         ],
       );
@@ -428,16 +412,16 @@ String validateEmail(String value)  {
       return GestureDetector(
         onTap: onTap,
         child: Container(
-          height: 60.0,
-          width: 60.0,
+          height: 35.0,
+          width: 35.0,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black26,
-                offset: Offset(0, 2),
-                blurRadius: 6.0,
+                color: Colors.black12,
+                //offset: Offset(0, 1),
+                blurRadius: 2.0,
               ),
             ],
             image: DecorationImage(
@@ -453,20 +437,22 @@ String validateEmail(String value)  {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            _buildSocialBtn(
-                  () {
-                    _loginWithFB();
-                  },
-              AssetImage(
-                'assets/facebook.jpg',
-              ),
-            ),
+
             _buildSocialBtn(
                   () {
       _handleSignIn().then((FirebaseUser user) => print(user))
           .catchError((e) => print(e));
-      }, AssetImage(
+      },
+              AssetImage(
                 'assets/google.jpg',
+              ),
+            ),
+            _buildSocialBtn(
+                  () {
+                _loginWithFB();
+              },
+              AssetImage(
+                'assets/facebook.jpg',
               ),
             ),
             _buildSocialBtn(
@@ -490,14 +476,14 @@ String validateEmail(String value)  {
                 text: 'Don\'t have an Account? ',
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.w400,
+                  fontSize: 16.0,
+                  fontFamily: 'OpenSans Regular'
                 ),
               ),
               TextSpan(
                 text: 'Sign Up',
                 style: TextStyle(
-                  color: Color(0xffAD0514),
+                  color: myColors.red,
                   fontSize: 18.0,
                   fontWeight: FontWeight.bold,
                 ),
@@ -508,8 +494,6 @@ String validateEmail(String value)  {
       );
     }
     return Scaffold(
-      //key: scaffoldKey,
-     // key:formKey,
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: GestureDetector(
@@ -517,34 +501,26 @@ String validateEmail(String value)  {
           child: Stack(
             children: <Widget>[
               Container(
-                height: double.infinity,
-                width: double.infinity,
+                height: deviceInfo.size.height,
+                width: deviceInfo.size.width,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                    Colors.white30,
-                      Colors.white,
-                    ],
-                    stops: [0.1, 0.4,0.9]
-                  ),
+                    color: myColors.background,
                 ),
               ),
               Container(
-                height: double.infinity,
+                height: deviceInfo.size.height,
+                  //width: deviceInfo.size.width*0.8,
                 child: SingleChildScrollView(
                   physics: AlwaysScrollableScrollPhysics(),
                   padding: EdgeInsets.symmetric(
-                    horizontal: 40.0,
-                    vertical: 120.0,
+                    horizontal: 20.0,
+                    vertical: 100.0,
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        'Sign In to Salahly',
+                        'Sign In',
                         style: TextStyle(
                           color: Colors.black,
                           fontFamily: 'OpenSans',
@@ -555,13 +531,13 @@ String validateEmail(String value)  {
                       SizedBox(height: 30.0),
                       _buildEmailTF(),
                       SizedBox(
-                        height: 20.0,
+                        height: 15.0,
                       ),
                       _buildPasswordTF(),
                       _buildForgotPasswordBtn(),
-                      _buildLoginBtn(),
                       _buildSignInWithText(),
                       _buildSocialBtnRow(),
+                      _buildLoginBtn(),
                       _buildSignupBtn(),
                     ],
                   ),

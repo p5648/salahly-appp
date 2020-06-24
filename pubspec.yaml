@@ -54,6 +54,9 @@ dependencies:
   flutter_rating: ^0.0.2
   timeago: ^2.0.26
   like_button: ^1.0.1
+  responsive_widgets: ^2.0.1
+  location: ^3.0.2
+  flutter_svg:
 
 
 dev_dependencies:
@@ -79,6 +82,11 @@ flutter:
     - assets/images.jpg
     - assets/splash.jpg
     - assets/comm.jpg
+    - assets/splash2.jpg
+    - assets/face2.jpg
+    - assets/gogle.jpg
+    - assets/wts2.jpg
+    - assets/icons/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
@@ -94,6 +102,18 @@ flutter:
      - family: OpenSans
        fonts:
          - asset: fonts/OpenSans.ttf
+     - family: OpenSans Bold
+       fonts:
+         - asset: fonts/OpenSans-Bold.ttf
+     - family: OpenSans Light
+       fonts:
+         - asset: fonts/OpenSans-Light.ttf
+     - family: OpenSans Regular
+       fonts:
+         - asset: fonts/OpenSans-Regular.ttf
+     - family: OpenSans SemiBold
+       fonts:
+         - asset: fonts/OpenSans-SemiBold.ttf
 
 
   # For details regarding fonts from package dependencies,

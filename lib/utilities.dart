@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:salahly/myColors.dart' as myColors;
 final kHintTextStyle = TextStyle(
   color: Colors.white54,
   fontFamily: 'OpenSans',
@@ -7,8 +7,8 @@ final kHintTextStyle = TextStyle(
 
 final kLabelStyle = TextStyle(
   color: Colors.black,
-  fontWeight: FontWeight.bold,
-  fontFamily: 'OpenSans',
+  //fontWeight: FontWeight.bold,
+  fontFamily: 'OpenSans Light',
 );
 
 final kBoxDecorationStyle = BoxDecoration(
@@ -17,8 +17,8 @@ final kBoxDecorationStyle = BoxDecoration(
   boxShadow: [
     BoxShadow(
       color: Colors.black12,
-      blurRadius: 6.0,
-      offset: Offset(0, 2),
+      blurRadius: 2.0,
+      //offset: Offset(0, 2),
     ),
   ],
 );

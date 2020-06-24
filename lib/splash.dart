@@ -20,6 +20,7 @@ import 'package:salahly/categories.dart';
 import 'package:salahly/main.dart';
 import 'package:salahly/editprofile.dart';
 import 'package:flutter/services.dart';
+import 'package:location/location.dart';
 class Splash extends StatefulWidget {
 
   @override
@@ -29,17 +30,20 @@ class Splash extends StatefulWidget {
 class _SplashState extends State<Splash> {
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   Position  _currentPosition;
- Future <Position> _getCurrentLocation() async{
-    geolocator
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
-        .then((Position position) {
-      //print('pos: ${position}');
-      _currentPosition = position;
-      print(_currentPosition);
-      return position;
-    }).catchError((e) {
-      print(e.toString());
-    });
+  UserLocation _currentLocation;
+  Future<UserLocation> getLocation() async {
+    try {
+      var userLocation = await Location().getLocation();
+      _currentLocation = UserLocation(
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+      );
+    } on Exception catch (e) {
+      print('Could not get location: ${e.toString()}');
+    }
+
+
+    return _currentLocation;
   }
   var mymap = {};
   var title = '';
@@ -52,42 +56,10 @@ class _SplashState extends State<Splash> {
   FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   new FlutterLocalNotificationsPlugin();
-  void getLocation() async {
-    Position position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    print(position);
-  }
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    var android = new AndroidInitializationSettings('mipmap/ic_launcher');
-    var ios = new IOSInitializationSettings();
-    var platform = new InitializationSettings(android, ios);
-    flutterLocalNotificationsPlugin.initialize(platform);
-    firebaseMessaging.configure(
-        onLaunch: (Map<String, dynamic> msg) {
-          print("onLaunch called ${(msg)}");
-        },
-        onResume: (Map<String, dynamic> msg) {
-          print("onResume called ${(msg)}");
-        },
-        onMessage: (Map<String, dynamic> msg) {
-          print("onResume called ${(msg)}");
-          mymap = msg;
-          showNotification(msg);
-        }
-    );
-    firebaseMessaging.requestNotificationPermissions(
-        const IosNotificationSettings(sound: true, alert: true, badge: true));
-    firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings setting) {
-      print("onIosSettingsRegistered");
-    });
-    firebaseMessaging.getToken().then((token) {
-      update(token);
-    });
-
     connectivityStream = Connectivity().onConnectivityChanged.listen((
         ConnectivityResult resnow) {
       if (resnow == ConnectivityResult.none) {
@@ -114,15 +86,21 @@ class _SplashState extends State<Splash> {
       }
     });
 
-      _getCurrentLocation().then((value) => {
-        Future.delayed(Duration(seconds: 4), () async {
-        value = _currentPosition;
-        print(value);
-        SharedPreferences prefs2 = await SharedPreferences.getInstance();
-        prefs2.setDouble('lat',value.latitude );
-        prefs2.setDouble('long',value.longitude );
-        submitAll();
-      }),
+    getLocation().then((value) => {
+      print(_currentPosition),
+      Future.delayed(Duration(seconds: 2), () async {
+        if
+        (
+        _currentLocation!=null
+        ) {
+          value = _currentLocation;
+          print(value.latitude);
+          print('farid');
+          SharedPreferences prefs2 = await SharedPreferences.getInstance();
+          prefs2.setDouble('lat', value.latitude);
+          prefs2.setDouble('long', value.longitude);
+          submitAll();
+        }  }),
       // submitAll();
     });
   }
@@ -132,43 +110,19 @@ class _SplashState extends State<Splash> {
     super.dispose();
     connectivityStream.cancel();
   }
-  showNotification(Map<String, dynamic> msg) async {
-    var android = new AndroidNotificationDetails(
-        "1", "channelName", "channelDescription");
-    var iOS = new IOSNotificationDetails();
-    var platform = new NotificationDetails(android, iOS);
-    msg.forEach((k, v) {
-      title = k;
-      body = v;
-      setState(() {
-      });
-    });
-    await flutterLocalNotificationsPlugin.show(
-        0, " ${body.keys}", "  ${body.values}", platform);
-  }
-  update(String token) {
-    print(token);
-    DatabaseReference databaseReference = new FirebaseDatabase().reference();
-    databaseReference.child('fcm-token/$token').set({"token": token});
-    mytoken = token;
-    setState(() {});
-  }
-
   Future<String> submitAll() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var email = prefs.getString('email');
     var phone_number = prefs.getString('phone');
     if (email == null && phone_number == null) {
-      Navigator.of(context).pushNamed('/loginpage');
+      Navigator.of(context).pushNamed('/login');
     }
     else if (email != null) {
       await Firestore.instance
           .collection('clients').where('email', isEqualTo: email).limit(1)
           .snapshots()
           .listen((data) {
-        //print(data.documents.length);
         print(email);
-        //bool x =false;
         if (data.documents.length==1) {
           Navigator.of(context).pushNamed('/categories');
         }
@@ -206,28 +160,36 @@ class _SplashState extends State<Splash> {
       });
     }
   }
-    DocumentReference Z;
-    @override
-    Widget build(BuildContext context) {
-      // TODO: implement build
-      return new MaterialApp(
-          home: new Scaffold(
-              body: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                      image: AssetImage('assets/splash.jpg'),
-                      fit: BoxFit.cover
-                  ),
+  DocumentReference Z;
+  @override
+  Widget build(BuildContext context) {
+    var deviceInfo = MediaQuery.of(context);
+    // TODO: implement build
+    return new MaterialApp(
+        home: new Scaffold(
+            body: Container(
+              height: deviceInfo.size.height,
+              width: deviceInfo.size.width,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage('assets/splash2.jpg'),
+                    fit: BoxFit.cover
                 ),
-                child: Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                          Colors.lightBlue),
-                    )
-                ),
-              )
-          )
-      );
-    }
+              ),
+              child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.white),
+                  )
+              ),
+            )
+        )
+    );
   }
+}
+class UserLocation {
+  final double latitude;
+  final double longitude;
 
+  UserLocation({this.latitude, this.longitude});
+}

@@ -202,7 +202,7 @@ int starCount = 5;
                                         borderRadius: BorderRadius.all(Radius.circular(15.0)),
                                         border: Border.all(
                                           color: Colors.black,
-                                          width: 4,
+                                          width: 2,
                                         )),
                                     child:new Column(
                                       children: <Widget>[
@@ -242,8 +242,6 @@ int starCount = 5;
                                                         builder: (context) => new Chat(
                                                           serivce_owner:c[index].reference() ,
                                                           user: widget.g,
-
-
                                                         )));
                                               },
                                               child: new Icon(
@@ -254,7 +252,6 @@ int starCount = 5;
                                             new Padding(
                                                 padding: EdgeInsets.only(left: 1)),
                                             new FlatButton(
-
                                               onPressed: () => launch("tel:${c[index].getphone()}"),
                                               child: new Icon(
                                                 Icons.call,
@@ -270,8 +267,6 @@ int starCount = 5;
                                             new FlatButton(
                                                 onPressed: (){
                                                   check=true;
-
-
                                                   Firestore.instance.collection('clients')
                                                       .snapshots().listen((data) => data.documents.forEach((doc) {
                                                     if(widget.g==doc.reference) {
