@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:salahly/wensh.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:salahly/myColors.dart' as myColors;
+
+
 class Map extends StatefulWidget {
   GeoPoint zz2;
-  List<String> XX = new List();
+  List<DocumentReference> XX = new List();
   List<String> XX2 = new List();
-  Map(List<String> xx , List<String> xx2 )
+  Map(List<DocumentReference> xx , List<String> xx2 )
   {
 
     this.XX = xx;
@@ -53,7 +57,7 @@ class MyMap extends State<Map> {
                 right: 15.0,
                 left: 15.0,
                 child: Container(
-                  height: 150.0,
+                  height: 110.0,
                   width: double.infinity,
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0), color: Colors.white),
@@ -61,11 +65,13 @@ class MyMap extends State<Map> {
                     decoration: InputDecoration(
                         hintText: 'ضع عنوانك',
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
+                        contentPadding: EdgeInsets.only(left: 20.0, top: 20.0),
                         suffixIcon: IconButton(
                             icon: Icon(Icons.search),
+                            color: myColors.red,
                             onPressed: searchandNavigate,
                             iconSize: 30.0)),
+
                     onChanged: (val) {
                       setState(() {
                         searchAddr = val;
@@ -73,13 +79,23 @@ class MyMap extends State<Map> {
                     },
                   ),
                     //new Padding(padding: EdgeInsets.all(15)),
-                    OutlineButton(onPressed:()=> Navigator.push(
-                      context,
-                      new MaterialPageRoute(
-                          builder: (context) =>
-                          new ClientSearch(widget.XX,widget.XX2,null
-                          )),
-                    ))
+                    FlatButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            new MaterialPageRoute(
+                                builder: (context) => new ClientSearch(widget.XX,widget.XX2,null,null
+
+                                )));
+                      },
+                      child: SvgPicture.asset(
+                        "icons/map-marker.svg",
+                        color: myColors.red,
+                        width: 24,
+                        height: 24,
+                      ),
+                    ),
+
                   ]
                   ),
                 )

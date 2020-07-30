@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:http/http.dart' as http;
@@ -8,6 +9,7 @@ import 'dart:async';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:salahly/editprofile.dart';
 import 'package:salahly/categories.dart';
+import 'package:salahly/registerpage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:salahly/utilities.dart';
 import 'package:flutter/rendering.dart';
@@ -47,32 +49,50 @@ class _LoginPageState extends State<LoginPage> {
         final token = result.accessToken.token;
         final graphResponse = await http.get('https://graph.facebook.com/v2.12/me?fields=name,picture,email&access_token=${token}');
         final profile = JSON.jsonDecode(graphResponse.body);
+        AuthCredential credential = FacebookAuthProvider.getCredential(
+            accessToken: token);
         setState(() async {
           userProfile = profile;
           _isLoggedIn = true;
-          if(_auth.currentUser() !=null) {
-            SharedPreferences prefs2 = await SharedPreferences.getInstance();
-            prefs2.setString('email', userProfile["email"]);
-            Navigator.push(
-                context,
-                new MaterialPageRoute(
-                    builder: (context) =>
-                    new cata(
-                       "")));
-          }
-          else {
-            AuthCredential credential = FacebookAuthProvider.getCredential(
-                accessToken: token);
+          if (FirebaseAuth.instance.currentUser() != null) {
             FirebaseUser firebaseUser = (
                 await FirebaseAuth.instance.signInWithCredential(credential)
             ).user;
-            Navigator.push(
-                context,
-                new MaterialPageRoute(
-                    builder: (context) =>
-                    new Editprofile(
-                        userProfile["email"],
-                        userProfile["picture"]["data"]["url"], "")));
+            SharedPreferences prefs2 = await SharedPreferences.getInstance();
+            prefs2.setString('email', userProfile["email"]);
+            await Firestore.instance
+                .collection('clients').where('email', isEqualTo: userProfile["email"]).limit(1)
+                .snapshots()
+                .listen((data) {
+              print(userProfile["email"]);
+              if (data.documents.length == 1) {
+                 Navigator.pushReplacement(
+                    context,
+                    new MaterialPageRoute(
+                        builder: (context) =>
+                        new cata(
+                            "")));
+              }
+              else if (data.documents.length != 1) {
+                Navigator.push(
+                    context,
+                    new MaterialPageRoute(
+                        builder: (context) =>
+                        new Editprofile(
+                            userProfile["email"], "","")));
+                return;
+              }
+            });
+          }
+          else {
+            Fluttertoast.showToast(
+                msg: 'try login with Facebook again later',
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.CENTER,
+                timeInSecForIos: 1,
+                backgroundColor: myColors.red,
+                textColor: Colors.white
+            );
           }
         });
         break;
@@ -103,22 +123,39 @@ class _LoginPageState extends State<LoginPage> {
           .user;
       SharedPreferences prefs2 = await SharedPreferences.getInstance();
       prefs2.setString('email', user.email);
-      Navigator.push(
-          context,
-          new MaterialPageRoute(
-              builder: (context) =>
-              new cata(
-                  "")));
+      await Firestore.instance
+          .collection('clients').where('email', isEqualTo: user.email).limit(1)
+          .snapshots()
+          .listen((data) {
+        print(user.email);
+        if (data.documents.length == 1) {
+          Navigator.push(
+              context,
+              new MaterialPageRoute(
+                  builder: (context) =>
+                  new cata(
+                      "")));
+        }
+        else if (data.documents.length != 1) {
+          Navigator.push(
+              context,
+              new MaterialPageRoute(
+                  builder: (context) =>
+                  new Editprofile(
+                      user.email, "", "")));
+          return;
+        }
+      });
     }
     else {
-      final FirebaseUser user = (await _auth.signInWithCredential(credential))
-          .user;
-      Navigator.push(
-          context,
-          new MaterialPageRoute(
-              builder: (context) =>
-              new Editprofile(
-                  user.email, user.photoUrl,"")));
+      Fluttertoast.showToast(
+          msg: 'try login with Gmail again later',
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIos: 1,
+          backgroundColor: myColors.red,
+          textColor: Colors.white
+      );
     }
   }
   TextEditingController _emailController = new TextEditingController();
@@ -152,8 +189,8 @@ class _LoginPageState extends State<LoginPage> {
       final FirebaseUser user = result.user;
       assert(user != null);
       assert(await user.getIdToken() != null);
-
       final FirebaseUser currentUser = await auth.currentUser();
+      assert(user.uid == currentUser.uid);
       Fluttertoast.showToast(
           msg: 'succeeded',
           toastLength: Toast.LENGTH_LONG,
@@ -164,19 +201,30 @@ class _LoginPageState extends State<LoginPage> {
       );
       SharedPreferences prefs2 = await SharedPreferences.getInstance();
       prefs2.setString('email', user.email);
-      assert(user.uid == currentUser.uid);
-      Navigator.push(
-          context,
-          new MaterialPageRoute(
-              builder: (context) =>
-              new cata(
+      await Firestore.instance
+          .collection('clients').where('email',isEqualTo:user.email).limit(1)
+          .snapshots()
+          .listen((data) {
+        if (data.documents.length==1) {
+          Navigator.push(
+              context,
+              new MaterialPageRoute(
+                  builder: (context) =>
+                  new cata(
                   "")));
-      print('signInEmail succeeded: $user');
-      //ok = true;
-      //validateEmail("");
-      //if (user.uid != currentUser.uid) {
-      return user;
-    }
+        }
+        else if (data.documents.length ==0) {
+          Navigator.push(
+              context,
+              new MaterialPageRoute(
+                  builder: (context) =>
+                  new RegisterPage(
+                      )));
+          return;
+        }
+      });
+        return user;
+      }
       catch (e) {
       if (e.code == "ERROR_USER_NOT_FOUND") {
         Fluttertoast.showToast(
@@ -240,7 +288,7 @@ String validateEmail(String value)  {
           Container(
           alignment: Alignment.centerLeft,
           decoration: kBoxDecorationStyle,
-          height: 50.0,
+          height: 55.0,
               //width: deviceInfo.size.height,
           child:Form(
             key: formKey,
@@ -286,7 +334,7 @@ String validateEmail(String value)  {
           Container(
             alignment: Alignment.centerLeft,
             decoration: kBoxDecorationStyle,
-            height: 50.0,
+            height: 55.0,
       child:Form(
         key: formKey2,
             child: TextFormField(

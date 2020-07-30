@@ -1,3 +1,4 @@
+//import 'dart:html';
 import 'dart:io';
 import 'dart:math';
 import 'package:connectivity/connectivity.dart';
@@ -31,6 +32,7 @@ class _SplashState extends State<Splash> {
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   Position  _currentPosition;
   UserLocation _currentLocation;
+  DocumentReference client ;
   Future<UserLocation> getLocation() async {
     try {
       var userLocation = await Location().getLocation();
@@ -41,8 +43,6 @@ class _SplashState extends State<Splash> {
     } on Exception catch (e) {
       print('Could not get location: ${e.toString()}');
     }
-
-
     return _currentLocation;
   }
   var mymap = {};
@@ -52,7 +52,6 @@ class _SplashState extends State<Splash> {
   List<String> rphone = new List<String>();
   StreamSubscription connectivityStream;
   ConnectivityResult olders;
-
   FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   new FlutterLocalNotificationsPlugin();
@@ -92,7 +91,8 @@ class _SplashState extends State<Splash> {
         if
         (
         _currentLocation!=null
-        ) {
+        )
+        {
           value = _currentLocation;
           print(value.latitude);
           print('farid');
@@ -105,6 +105,7 @@ class _SplashState extends State<Splash> {
     });
   }
 
+
   @override
   void dispose() {
     super.dispose();
@@ -115,7 +116,12 @@ class _SplashState extends State<Splash> {
     var email = prefs.getString('email');
     var phone_number = prefs.getString('phone');
     if (email == null && phone_number == null) {
-      Navigator.of(context).pushNamed('/login');
+      Navigator.pushReplacement(
+          context,
+          new MaterialPageRoute(
+              builder: (context) =>
+              new LoginPage(
+                  "")));
     }
     else if (email != null) {
       await Firestore.instance
@@ -124,10 +130,16 @@ class _SplashState extends State<Splash> {
           .listen((data) {
         print(email);
         if (data.documents.length==1) {
-          Navigator.of(context).pushNamed('/categories');
+          Navigator.push(
+              context,
+              new MaterialPageRoute(
+                  builder: (context) =>
+                  new cata(
+                      "")));
+
         }
         else if (data.documents.length !=1) {
-          Navigator.push(
+          Navigator.pushReplacement(
               context,
               new MaterialPageRoute(
                   builder: (context) =>
@@ -142,14 +154,17 @@ class _SplashState extends State<Splash> {
           .collection('clients').where('phone',arrayContains:phone_number).limit(1)
           .snapshots()
           .listen((data) {
-        //print(data.documents.length);
         print(phone_number);
-        //bool x =false;
         if (data.documents.length==1) {
-          Navigator.of(context).pushNamed('/categories');
+          Navigator.push(
+              context,
+              new MaterialPageRoute(
+                  builder: (context) =>
+                  new cata(
+                      "")));
         }
         else if (data.documents.length !=1) {
-          Navigator.push(
+          Navigator.pushReplacement(
               context,
               new MaterialPageRoute(
                   builder: (context) =>

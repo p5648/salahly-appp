@@ -4,7 +4,7 @@ import 'package:salahly/notification.dart';
 import 'package:salahly/homepage.dart';
 import 'package:salahly/location2.dart';
 import 'package:salahly/loginpage.dart';
-import 'package:salahly/dsitance.dart';
+import 'package:salahly/doko.dart';
 import 'package:salahly/registerpage.dart';
 import 'package:salahly/image.dart';
 import 'package:salahly/forget_password.dart';
@@ -45,12 +45,13 @@ class MyApp extends StatelessWidget {
         routes: <String , WidgetBuilder>{
           '/landingpage' : (BuildContext context) => new MyApp(),
           '/loginpage' : (BuildContext context) => new LoginPage(""),
+          '/splash' : (BuildContext context) => new Splash(),
           '/editprofile2' : (BuildContext context) => new Edit2(""),
           '/register' : (BuildContext context) => new RegisterPage(),
           '/forgetpasswordpage' : (BuildContext context) => new Forget(),
           '/home' : (BuildContext context) => new Home(),
           '/image' : (BuildContext context) => new ImagePage(""),
-          '/listchat' : (BuildContext context) => new Listchat(X),
+          //'/listchat' : (BuildContext context) => new Listchat(X),
           '/notification' : (BuildContext context) => new Notificat(),
           '/phonepage' : (BuildContext context) => new Phone(),
           '/categories': (BuildContext context) => new cata(m),

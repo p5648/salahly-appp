@@ -17,7 +17,7 @@ final kBoxDecorationStyle = BoxDecoration(
   boxShadow: [
     BoxShadow(
       color: Colors.black12,
-      blurRadius: 2.0,
+      blurRadius: 1.0,
       //offset: Offset(0, 2),
     ),
   ],

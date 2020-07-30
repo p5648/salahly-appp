@@ -3,10 +3,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:salahly/myColors.dart' as myColors;
 //import 'package:p5salahly/location.dart';
 class ChatMessage {
   String content;
@@ -36,14 +38,12 @@ class Chat extends StatefulWidget {
   @override
   _ChatState createState() => _ChatState();
 }
-
 class _ChatState extends State<Chat> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final Firestore _firestore = Firestore.instance;
   List<Map> massee;
   TextEditingController messageController = TextEditingController();
   ScrollController scrollController = ScrollController();
-
   String x(String sort) {
     var xm = Firestore.instance
         .collection(sort)
@@ -53,7 +53,6 @@ class _ChatState extends State<Chat> {
         .toString();
     return xm;
   }
-
   Future<void> add() async {
     massee = new List();
     massee.add(new ChatMessage(DateTime.now(),
@@ -65,7 +64,6 @@ class _ChatState extends State<Chat> {
         'messege': massee,
         'service_owner': widget.serivce_owner,
       });
-
       messageController.clear();
       scrollController.animateTo(
         scrollController.position.maxScrollExtent,
@@ -74,50 +72,47 @@ class _ChatState extends State<Chat> {
       );
     }
   }
-
   Future<void> callback() async {
     print('USer: ${widget.user}');
     await Firestore.instance
         .collection('chat')
         .where("client", isEqualTo: widget.user)
-        .where("service_owner", isEqualTo: widget.serivce_owner).limit(1)
+    .where("service_owner", isEqualTo: widget.serivce_owner)
         .snapshots()
         .listen((onData) {
-      if (onData.documents.length == 1) {
+      if (onData.documents.length > 0) {
         onData.documents.forEach((docc) {
-          massee = List.from(docc["messege"]);
-          print(widget.serivce_owner.toString());
-          massee.add(new ChatMessage(DateTime.now(),
-              messageController.text.toString(), "cts", "text")
-              .L);
-          if (messageController.text.length > 0) {
-            String x = docc.documentID;
-            _firestore
-                .collection('chat')
-                .document(x)
-                .updateData(({'messege': massee}));
-            messageController.clear();
-            scrollController.animateTo(
-              scrollController.position.maxScrollExtent,
-              curve: Curves.easeOut,
-              duration: const Duration(milliseconds: 300),
-            );
-          }
+            massee = List.from(docc["messege"]);
+            print(widget.serivce_owner.toString());
+            massee.add(new ChatMessage(DateTime.now(),
+                messageController.text.toString(), "cts", "text")
+                .L);
+            if (messageController.text.length > 0) {
+              String x = docc.documentID;
+              _firestore
+                  .collection('chat')
+                  .document(x)
+                  .updateData(({'messege': massee}));
+              messageController.clear();
+              scrollController.animateTo(
+                scrollController.position.maxScrollExtent,
+                curve: Curves.easeOut,
+                duration: const Duration(milliseconds: 300),
+              );
+            }
         });
       } else {
+       print(massee);
         add();
       }
     });
-
     /*doc.documents.forEach((docc) {
              // String x=docc.documentID.toString() ;
-
              time=List.from(docc["messege"]["time"]);
              content=List.from(docc["messege"]["content"]);
              from=List.from(docc["messege"]["from"]);
              time.add(DateTime.now().toIso8601String().toString());
              content.add(messageController.text.toString());
-
              //print(content.elementAt(1).toUpperCase());
              from.add("cts");
              if (messageController.text.length > 0) {
@@ -132,13 +127,10 @@ class _ChatState extends State<Chat> {
                  duration: const Duration(milliseconds: 300),);}
            });
          }
-         else{
-
+         else{.
            add();
          }
        });
-
-
  });*/
   }
 
@@ -173,56 +165,56 @@ class _ChatState extends State<Chat> {
     Firestore.instance
         .collection('chat')
         .where("client", isEqualTo: widget.user)
-        .where("service_owner", isEqualTo: widget.serivce_owner).limit(1)
+    //.where("service_owner", isEqualTo: widget.serivce_owner)
         .snapshots()
         .listen((onData) async {
+
       r=onData.documents.length;
       onData.documents.forEach((docc) {
-        massee = List.from(docc["messege"]);
-        // print(widget.serivce_owner.toString());
+        if(docc["service_owner"]==widget.serivce_owner) {
+          massee = List.from(docc["messege"]);
+          // print(widget.serivce_owner.toString());
 
-        //print("uu");
-        if(flag==true){
-          if(onData.documents.length>0){
-            print(massee.toString());
-            massee.add(new ChatMessage(DateTime.now(),
-                downloadUrl, "cts", "image")
-                .L);
-            _firestore
-                .collection('chat')
-                .document(docc.documentID)
-                .updateData(({'messege': massee}));
-            scrollController.animateTo(
-              scrollController.position.maxScrollExtent,
-              curve: Curves.easeOut,
-              duration: const Duration(milliseconds: 300),
-            );
-            flag=false;
+          //print("uu");
+          if (flag == true) {
+            if (onData.documents.length > 0) {
+              print(massee.toString());
+              massee.add(new ChatMessage(DateTime.now(),
+                  downloadUrl, "cts", "image")
+                  .L);
+              _firestore
+                  .collection('chat')
+                  .document(docc.documentID)
+                  .updateData(({'messege': massee}));
+              scrollController.animateTo(
+                scrollController.position.maxScrollExtent,
+                curve: Curves.easeOut,
+                duration: const Duration(milliseconds: 300),
+              );
+              flag = false;
+            } else {
+              massee = new List();
+              massee.add(new ChatMessage(DateTime.now(),
+                  downloadUrl, "cts", "image")
+                  .L);
 
+              Firestore.instance.collection('chat').add({
+                'client': widget.user,
+                'messege': massee,
+                'service_owner': widget.serivce_owner,
+              });
 
-          } else {
-            massee = new List();
-            massee.add(new ChatMessage(DateTime.now(),
-                downloadUrl, "cts", "image")
-                .L);
+              scrollController.animateTo(
+                scrollController.position.maxScrollExtent,
+                curve: Curves.easeOut,
+                duration: const Duration(milliseconds: 300),
+              );
 
-            Firestore.instance.collection('chat').add({
-              'client': widget.user,
-              'messege': massee,
-              'service_owner': widget.serivce_owner,
-            });
-
-            scrollController.animateTo(
-              scrollController.position.maxScrollExtent,
-              curve: Curves.easeOut,
-              duration: const Duration(milliseconds: 300),
-            );
-
-            flag=false;
+              flag = false;
+            }
           }
+          x = docc.documentID;
         }
-        x
-        = docc.documentID;
       });
     });
   }
@@ -231,28 +223,21 @@ class _ChatState extends State<Chat> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: new AppBar(
-        //  title: new Text('Flutter Demo'),
 
-        backgroundColor: Color.fromRGBO(31, 58, 147, 1),
+        //  title: new Text('Flutter Demo'),
+        backgroundColor: myColors.red,
         centerTitle: true,
+
         title: Text(
-          "salahly",
+          "S A L A H L Y",
           textAlign: TextAlign.right,
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios),
           onPressed: () {
-            //_select(choices[0]);
+            Navigator.of(context).pop();
           },
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.menu),
-            onPressed: () {
-              //_select(choices[0]);
-            },
-          ),
-        ],
       ),
       body: SafeArea(
         child: Column(
@@ -263,53 +248,37 @@ class _ChatState extends State<Chat> {
                 stream: _firestore
                     .collection('chat')
                     .where("client", isEqualTo: widget.user)
-                    .where("service_owner", isEqualTo: widget.serivce_owner)
+                .where("service_owner", isEqualTo: widget.serivce_owner)
                     .limit(1)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData)
                     return Center(
-                      child: CircularProgressIndicator(),
+                      child: CircularProgressIndicator(backgroundColor: myColors.red,),
                     );
 
                   List<DocumentSnapshot> docs = snapshot.data.documents;
                   //List from=List.from()
-
                   List<Message> messages = new List();
-
                   docs.forEach((d) {
-                    List from  = List.from(d["messege"]);
 
-
-                    /*    from.forEach((f){
+                      List from = List.from(d["messege"]);
+                      /*    from.forEach((f){
                           messages.add(new Message(
                               from: from[f],
                               text: content[f],
                               me: "cts" == from[f]
                           ));
                         });*/
-                    for (int i = 0; i < from.length; i++) {
-                      messages.add(new Message(
-                          from: from[i]["from"],
-                          text: from[i]["content"],
-                          me: "cts" == from[i]["from"],
-                          type:from[i]["type"]),
-                      );
-                    }
+                      for (int i = 0; i < from.length; i++) {
+                        messages.add(new Message(
+                            from: from[i]["from"],
+                            text: from[i]["content"],
+                            me: "cts" == from[i]["from"],
+                            type: from[i]["type"]),
+                        );
+                      }
                   });
-
-                  /*   List<Widget> messages;
-                  docs.forEach((docc) {
-                  messages=  docs.map((doc) =>
-
-                        Message(
-                          from: doc.data['messege']['from'][0].toString(),
-                          text: doc.data['messege']['content'][0].toString(),
-                          me: "cts" == doc.data["messege"]["from"][0].toString(),
-                        ))
-                        .toList();
-                  });*/
-
                   return ListView(
                     controller: scrollController,
                     children: <Widget>[
@@ -346,8 +315,8 @@ class _ChatState extends State<Chat> {
                           flex: 5,
                           child: Container(
                             width: 10,
-                            decoration: new BoxDecoration(
-                              color: Colors.white,
+                            decoration: new BoxDecoration
+                              (color: Colors.white,
                               borderRadius: const BorderRadius.all(
                                   const Radius.circular(25.0)),
                             ),
@@ -356,18 +325,14 @@ class _ChatState extends State<Chat> {
                               onSubmitted: (value) => callback(),
                               style: new TextStyle(
                                   height: .2,
-//color: Colors.white
                                   backgroundColor: Colors.white),
                               decoration: InputDecoration(
                                 hintText: "... اكتب هنا ",
-
                                 border: new OutlineInputBorder(
                                   borderRadius: const BorderRadius.all(
                                     const Radius.circular(25.0),
                                   ),
                                 ),
-
-//fillColor: Colors.white,
                               ),
                               controller: messageController,
                             ),
@@ -382,35 +347,34 @@ class _ChatState extends State<Chat> {
                     ],
                   ),
                   new Padding(padding: EdgeInsets.all(3))
-                ])),
+                ]
+                )
+            ),
           ],
         ),
       ),
     );
   }
-
 }
-
-
 class SendButton extends StatelessWidget {
   final String text;
   final callback;
-
   const SendButton({Key key, this.text, this.callback}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return new RawMaterialButton(
       onPressed: callback,
-      child: new Icon(
-        Icons.arrow_forward_ios,
-        color: Colors.white,
-        size: 10.0,
+      child: SvgPicture.asset(
+        "assets/icons/Group.svg",
+        width: 30,
+        height: 30,
+
       ),
+
       shape: new CircleBorder(),
       elevation: 2.0,
-      fillColor: Color.fromRGBO(31, 58, 147, 1),
-      padding: const EdgeInsets.all(10.0),
+      //fillColor:myColors.green,
+      padding: const EdgeInsets.all(5.0),
     );
   }
 }
@@ -434,23 +398,19 @@ class Message extends StatelessWidget {
             from,
           ),*/
           new Padding(padding: EdgeInsets.all(2)),
-
           type=="text"?  Material(
-            color: me ? Color.fromRGBO(31, 58, 147, 1) : Colors.white,
+            color: me ? myColors.red : myColors.green,
             borderRadius: BorderRadius.circular(10.0),
             elevation: 6.0,
             child: Container(
                 padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
                 child: Text(text, style:me? new TextStyle(color: Colors.white):new TextStyle(color: Colors.black))
-
             ),
           ): Container(
             decoration: new BoxDecoration(
               //             color: Colors.white,
               borderRadius: BorderRadius.circular(10.0),//new Color.fromRGBO(255, 0, 0, 0.0),
             ),
-
-
             padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
 
             child:  Image.network(

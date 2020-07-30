@@ -13,6 +13,7 @@ import 'package:salahly/loginpage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:like_button/like_button.dart';
+import 'package:salahly/myColors.dart' as myColors;
 import 'package:timeago/timeago.dart' as timeago;
 class Comment extends StatefulWidget {
   String F ;
@@ -165,102 +166,158 @@ setState(() {
           rcounter = List.from(doc['comments']['comment']['love']);
           rtime= List.from(doc['comments']['comment']['at']);
           rimg= List.from(doc['comments']['comment']['pic']);
-              return ListView.builder(
-              scrollDirection: Axis.vertical,
-              itemBuilder: (context, index){
-                if (index < rcomment.length){
-                  return new Container(
-                      child: Stack(
-                          children: <Widget>[
-                            Padding(padding: EdgeInsets.only(bottom: 40.0)),
-                            Row(children: <Widget>[
-                              CircleAvatar(
-                                radius: 25.0,
-                                backgroundImage: NetworkImage(
-                                    rimg[index]),
-                              ),
-                              new Padding(
-                                  padding: EdgeInsets.only(left: 7)),
-                              (phone_number != null) ? {
-                                rsender[index] = phone_number,
-                                Text(rsender[index] + ": ", style: TextStyle(
-                                    color: Colors.black,
-                                    fontStyle: FontStyle.italic,
-                                    fontWeight: FontWeight.bold),)} :
-                              Text(rsender[index] + ": ", style: TextStyle(
-                                  color: Colors.black,
-                                  fontStyle: FontStyle.italic,
-                                  fontWeight: FontWeight.bold)),
-                              Padding(
-                                  padding: EdgeInsets.only(left: 40)),
-                              Text(timeago.format(rtime[index].toDate())),
-                            ],
-                            ),
-                            Container(height: 20),
-                            Padding(
-                              padding: EdgeInsets.all(36),
-                              child: Card(color: Color(0xffAD0514),
-                                child: ListTile(
-                                  title: Text(rcomment[index],
-                                    style: TextStyle(color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontStyle: FontStyle.italic),),),
-                              ),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.only(top: 90, left: 220),
-                                child: Column(children: <Widget>[
-                                  LikeButton(
-                                    onTap: onLikeButtonTapped,
-                                    size: 48.0,
-                                    circleColor:
-                                    CircleColor(start: Color(0xffAD0514), end: Color(0xffAD0514)),
-                                    bubblesColor: BubblesColor(
-                                      dotPrimaryColor: Color(0xffAD0514),
-                                      dotSecondaryColor:Color(0xffAD0514),
-                                    ),
-                                    likeBuilder: (bool isLiked) {
-                                      return Icon(
-                                        Icons.favorite_border,
-                                        color: isLiked ?  Color(0xffAD0514) : null,
-                                        size: 24.0,
-                                      );
-                                    },
-                                    likeCount : rcounter[index],
-                                    countBuilder: (int count, bool isLiked, String text) {
-                                      var color = isLiked ? Colors.black : Colors.black;
-                                      Widget result;
-                                      if (count == 0) {
-                                      result = Text(
-                                                  "love",
-                                    style: TextStyle(color: color),
+
+               return ListView.builder(
+                   shrinkWrap: true,
+                   scrollDirection: Axis.vertical,
+                   itemBuilder: (context, index) {
+                     if (index < rcomment.length) {
+                       return new Container(
+                           child: Stack(children: <
+                               Widget>[
+                             Padding(
+                                 padding:
+                                 EdgeInsets.only(
+                                     bottom: 40.0)),
+                             Row(
+                               children: <Widget>[
+                                 CircleAvatar(
+                                   radius: 20.0,
+                                   backgroundImage:
+                                   NetworkImage(
+                                       rimg[index]),
+                                 ),
+                                 new Padding(
+                                     padding:
+                                     EdgeInsets.only(
+                                         left: 7)),
+                                 (phone_number != null)
+                                     ? {
+                                   rsender[index] =
+                                       phone_number,
+                                   Text(
+                                     rsender[index] +
+                                         ": ",
+                                     style: TextStyle(
+                                         color: myColors
+                                             .secondText,
+                                         fontFamily: 'Regular OpenSans'),
+                                   )
+                                 }
+                                     : Text(
+                                     rsender[index],
+                                     style: TextStyle(
+                                         color: myColors
+                                             .secondText,
+                                         fontFamily: 'Regular OpenSans')),
+                               ],
+                             ),
+                             Container(height: 20),
+                             Padding(
+                                 padding:
+                                 EdgeInsets.all(36),
+                                 child: Card(
+                                   color:
+                                   Colors.grey[100],
+                                   child: Column(
+                                       mainAxisSize: MainAxisSize
+                                           .min,
+                                       children: <Widget>[
+                                         ListTile(
+                                           title: Text(
+                                             rcomment[index],
+                                             style: TextStyle(
+                                                 color: Colors
+                                                     .black,
+                                                 fontFamily: "Regular OpenSans"),
+                                           ),
+                                           subtitle: Text(
+                                             "from " +
+                                                 timeago.format(
+                                                     rtime[index]
+                                                         .toDate()),
+                                             style: TextStyle(
+                                                 color: myColors
+                                                     .primaryText,
+                                                 fontFamily: "Regular OpenSans"),),
+                                         )
+                                       ]
+                                   ),
+                                 )
+                             ),
+                             Padding(
+                                 padding:
+                                 EdgeInsets.only(
+                                     top: 110,
+                                     left: 260),
+                                 child: Column(
+                                   children: <Widget>[
+                                     LikeButton(
+                                       onTap:
+                                       onLikeButtonTapped,
+                                       size: 48.0,
+                                       circleColor: CircleColor(
+                                           start: Color(
+                                               0xffAD0514),
+                                           end: Color(
+                                               0xffAD0514)),
+                                       bubblesColor:
+                                       BubblesColor(
+                                         dotPrimaryColor:
+                                         Color(
+                                             0xffAD0514),
+                                         dotSecondaryColor:
+                                         Color(
+                                             0xffAD0514),
+                                       ),
+                                       likeCount:
+                                       rcounter[
+                                       index],
+                                       likeBuilder: (bool
+                                       isLiked) {
+                                         return Icon(
+                                           Icons
+                                               .favorite_border,
+                                           color: isLiked
+                                               ? Color(
+                                               0xffAD0514)
+                                               : null,
+                                           size: 24.0,
                                          );
+                                       },
+                                       countBuilder: (int
+                                       count,
+                                           bool isLiked,
+                                           String text) {
+                                         var color = isLiked
+                                             ? Colors
+                                             .black
+                                             : Colors
+                                             .black;
+                                         int result2;
+                                         if (count ==
+                                             0) {
+                                           result2 = 0;
                                          }
-                                      else
-                                        result = Text(
-                                          text,
-                                          style: TextStyle(color: color),
-                                        );
-                                      rcounter[index] = count;
-                                      sleep1();
-                                      return result;
-                                    },
-                                  ),
-                                 // Text("${rcounter[index]} love"),
-                                ],
-                                )
-                            )
-                          ]
-                      )
-                  );
-                }
+                                         else
+                                           rcounter[
+                                           index] =
+                                               count;
+                                         sleep1();
+                                         //return result;
+                                       },
+                                     ),
+                                     // Text("${rcounter[index]} love"),
+                                   ],
+                                 ))
+                           ]));
+                     }
+                   });
               }
-          );
-        }
-        }
-        },
-        )
-),
+            }
+           },
+            )
+         ),
 TextField(
 controller: _text,
 decoration: InputDecoration(contentPadding: const EdgeInsets.all(20.0),focusColor: Colors.white,hoverColor: Colors.white,

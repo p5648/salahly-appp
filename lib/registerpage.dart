@@ -1,8 +1,10 @@
-//import 'dart:html';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:salahly/profile1.dart';
 import 'package:salahly/lo.dart';
 import 'package:salahly/loginpage.dart';
+import 'package:salahly/myColors.dart' as myColors;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -46,6 +48,9 @@ class _RegisterPageState extends State<RegisterPage> {
   String doc1;
   List<String> phonne = [];
   String photo = "";
+  List<Car> cartypes = new List();
+  List<DocumentReference> docref = new List();
+  List<Car> carmodels = new List();
   String validateEmail(String value) {
     String pattern =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))'
@@ -61,7 +66,6 @@ class _RegisterPageState extends State<RegisterPage> {
       return null;
     }
   }
-
   String validateMobile(String value) {
     String pattern = r'(^(?:[+0]9)?[0-9]{10,12}$)';
     RegExp regExp = new RegExp(pattern);
@@ -100,14 +104,43 @@ class _RegisterPageState extends State<RegisterPage> {
     }
     );
   }
+ /* returnFav()
+  async {
+    await Firestore.instance.collection('specialization').snapshots();
+    builder:
+    (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    if (!snapshot.hasData)
+    return new Text(
+    'Error: ${snapshot.error.toString()}',
+    textDirection: TextDirection.ltr,
+    );
+    switch (snapshot.connectionState) {
+    case ConnectionState.waiting:
+    return new Text(
+    'Loading...',
+    textDirection: TextDirection.ltr,
+    );
+    default:
+    DocumentReference d;
+    String x;
+    snapshot.data.documents.forEach((DocumentSnapshot doc) {
+    if(doc["name"]=="سمكري") {
+    d = doc.reference;
+    x=doc["name"];
+    }
+    });
+    }
+    }
+  }*/
   @override
   Widget build(BuildContext context) {
+    var deviceInfo = MediaQuery.of(context);
     final FirebaseAuth auth = FirebaseAuth.instance;
     Future<FirebaseUser> handleSignUp(email, password) async {
 uploadImage();
 try {
-  phonne.add(_phone1Controller.text);
-  phonne.add(_phone2Controller.text);
+  phonne.insert(0,_phone1Controller.text);
+  phonne.insert(0,_phone2Controller.text);
   if (formKey.currentState.validate() && formKey2.currentState.validate() &&
       formKey3.currentState.validate()
       && formKey4.currentState.validate() &&
@@ -123,7 +156,6 @@ try {
     assert (user != null);
     assert (await user.getIdToken() != null);
     DocumentReference docRef = await
-
     Firestore.instance.collection('clients').add(
         {
           'name': _nameController.text,
@@ -133,6 +165,8 @@ try {
           'car_type': selectedCurracy,
           'car_model': selectedCurracy2,
           "profile_pic": url,
+          "favourite_service_owner":docref,
+
         });
     //print(docRef.documentID);
     doc1 = docRef.documentID;
@@ -150,26 +184,57 @@ try {
     });
     return user;
   }
+//    If all data are not valid then start auto validation.
+  else {
+//    If all data are not valid then start auto validation.
+    setState(() {
+      _autovalidate = true;
+      //ok = true;
+    });
+  }
 }
 catch (e) {
   if (e.code == "ERROR_EMAIL_ALREADY_IN_USE") {
     Fluttertoast.showToast(
-        msg: 'Email already in use ,, try with another one',
+        msg: 'Email already in use',
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         timeInSecForIos: 1,
-        backgroundColor: Color(0xffAD0514),
+        backgroundColor: myColors.red,
         textColor: Colors.white
     );
   }
-      }
-//    If all data are not valid then start auto validation.
-        setState(() {
-          _autovalidate = true;
-        });
+}
+    }
+    Widget _buildSignupBtn() {
+      return GestureDetector(
+        onTap: () =>  Navigator.of(context).pushNamed('/loginpage'),
+        child: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: 'You have an Account? ',
+                style: TextStyle(
+                    color: myColors.secondText,
+                    fontSize: 16.0,
+                    fontFamily: 'OpenSans Regular'
+                ),
+              ),
+              TextSpan(
+                text: 'Sign In',
+                style: TextStyle(
+                  color: myColors.red,
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
     Widget _buildEmailTF() {
-      return Column(
+       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
@@ -180,8 +245,9 @@ catch (e) {
           Container(
               alignment: Alignment.centerLeft,
               decoration: kBoxDecorationStyle,
-              height: 60.0,
-              child: Form(
+              height: 55.0,
+              //width: deviceInfo.size.height,
+              child:Form(
                 key: formKey,
                 child: TextFormField(
                   keyboardType: TextInputType.emailAddress,
@@ -192,21 +258,21 @@ catch (e) {
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     errorStyle: TextStyle(
-                        color: Colors.red,
+                        color:  myColors.red,
                         fontSize: 15.0,
                         fontFamily: 'OpenSans'
                     ),
                     contentPadding: EdgeInsets.only(top: 14.0),
                     prefixIcon: Icon(
                       Icons.email,
-                      color: Color(0xffAD0514),
+                      color: myColors.primaryText ,
                     ),
                     hintText: 'الايميل',
                     hintStyle: kHintTextStyle,
                   ),
                   controller: _emailController,
-                  validator: validateEmail,
-                  onSaved: (value1) => _emailController.text = value1,
+                  validator :validateEmail,
+                  onSaved: (value1)=>   _emailController.text = value1,
                 ),
               )
           ),
@@ -225,7 +291,7 @@ catch (e) {
           Container(
               alignment: Alignment.centerLeft,
               decoration: kBoxDecorationStyle,
-              height: 60.0,
+              height: 55.0,
               child: Form(
                 key: formKey2,
                 child: TextFormField(
@@ -243,14 +309,14 @@ catch (e) {
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     errorStyle: TextStyle(
-                        color: Colors.red,
+                        color: myColors.red,
                         fontSize: 15.0,
-                        fontFamily: 'OpenSans'
+                        fontFamily: 'Regular OpenSans'
                     ),
                     contentPadding: EdgeInsets.only(top: 14.0),
                     prefixIcon: Icon(
                       Icons.vpn_key,
-                      color: Color(0xffAD0514),
+                      color: myColors.primaryText,
                     ),
                     hintText: 'كلمة السر',
                     hintStyle: kHintTextStyle,
@@ -274,7 +340,7 @@ catch (e) {
           Container(
               alignment: Alignment.centerLeft,
               decoration: kBoxDecorationStyle,
-              height: 60.0,
+              height: 55.0,
               child: Form(
                 key: formKey3,
                 child: TextFormField(
@@ -291,14 +357,14 @@ catch (e) {
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     errorStyle: TextStyle(
-                        color: Colors.red,
+                        color: myColors.red,
                         fontSize: 15.0,
                         fontFamily: 'OpenSans'
                     ),
                     contentPadding: EdgeInsets.only(top: 14.0),
                     prefixIcon: Icon(
                       Icons.person,
-                      color: Color(0xffAD0514),
+                      color: myColors.primaryText,
                     ),
                     hintText: 'الاسم',
                     hintStyle: kHintTextStyle,
@@ -322,7 +388,7 @@ catch (e) {
           Container(
               alignment: Alignment.centerLeft,
               decoration: kBoxDecorationStyle,
-              height: 60.0,
+              height: 55.0,
               child: Form(
                 key: formKey4,
                 child: TextFormField(
@@ -339,16 +405,16 @@ catch (e) {
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     errorStyle: TextStyle(
-                        color: Colors.red,
+                        color: myColors.red,
                         fontSize: 15.0,
                         fontFamily: 'OpenSans'
                     ),
                     contentPadding: EdgeInsets.only(top: 14.0),
                     prefixIcon: Icon(
                       Icons.phone,
-                      color: Color(0xffAD0514),
+                      color:myColors.primaryText,
                     ),
-                    hintText: 'رقم التيليفون',
+                    hintText: 'phone number',
                     hintStyle: kHintTextStyle,
                   ),
 
@@ -372,7 +438,7 @@ catch (e) {
           Container(
               alignment: Alignment.centerLeft,
               decoration: kBoxDecorationStyle,
-              height: 60.0,
+              height: 55.0,
               child: Form(
                 //key: formKey5,
                 child: TextFormField(
@@ -384,14 +450,14 @@ catch (e) {
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     errorStyle: TextStyle(
-                        color: Colors.red,
+                        color: myColors.red,
                         fontSize: 15.0,
                         fontFamily: 'OpenSans'
                     ),
                     contentPadding: EdgeInsets.only(top: 14.0),
                     prefixIcon: Icon(
                       Icons.phone,
-                      color: Color(0xffAD0514),
+                      color: myColors.primaryText,
                     ),
                     hintText: 'رقم تليفون اخر',
                     hintStyle: kHintTextStyle,
@@ -415,7 +481,7 @@ catch (e) {
           Container(
               alignment: Alignment.centerLeft,
               decoration: kBoxDecorationStyle,
-              height: 60.0,
+              height: 55.0,
               child: Form(
                 key: formKey5,
                 child: TextFormField(
@@ -432,14 +498,14 @@ catch (e) {
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     errorStyle: TextStyle(
-                        color: Colors.red,
+                        color: myColors.red,
                         fontSize: 15.0,
                         fontFamily: 'OpenSans'
                     ),
                     contentPadding: EdgeInsets.only(top: 14.0),
                     prefixIcon: Icon(
                       Icons.today,
-                      color: Color(0xffAD0514),
+                      color: myColors.primaryText,
                     ),
                     hintText: 'السن',
                     hintStyle: kHintTextStyle,
@@ -453,10 +519,10 @@ catch (e) {
     }
     Widget _buildLoginBtn() {
       return Container(
-        padding: EdgeInsets.symmetric(vertical: 25.0),
+        padding: EdgeInsets.symmetric(vertical: 20.0),
         width: double.infinity,
         child: RaisedButton(
-          elevation: 5.0,
+          elevation: 6.0,
           onPressed: () {
             handleSignUp(_emailController.text, _passwordController.text)
                 .then((FirebaseUser u) {});
@@ -464,17 +530,17 @@ catch (e) {
           },
           padding: EdgeInsets.all(15.0),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(10.0),
           ),
-          color: Color(0xffAD0514),
+          color: myColors.red,
           child: Text(
-            'Register',
+            'Sign Up',
             style: TextStyle(
               color: Colors.white,
               letterSpacing: 1.5,
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'OpenSans',
+              fontSize: 25.0,
+              //fontWeight: FontWeight.bold,
+              fontFamily: 'OpenSans SemiBold',
             ),
           ),
         ),
@@ -489,33 +555,40 @@ catch (e) {
           child: Stack(
             children: <Widget>[
               Container(
-                height: double.infinity,
-                width: double.infinity,
+                height:deviceInfo.size.height,
+                width: deviceInfo.size.width,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.white30,
-                      Colors.white,
-
-                    ],
-                    stops: [0.1, 0.4, 0.9],
-                  ),
+                  color: myColors.background,
                 ),
               ),
               Container(
-                height: double.infinity,
+                  height: deviceInfo.size.height,
                 child: SingleChildScrollView(
                   physics: AlwaysScrollableScrollPhysics(),
                   padding: EdgeInsets.symmetric(
-                    horizontal: 40.0,
-                    vertical: 120.0,
+                    horizontal: 20.0,
+                    vertical: 100.0,
                   ),
                   child : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    //mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
+                      Row(children: <Widget>[
+                        Align(
+                            alignment: Alignment(1.0,6.0),
+                            child :  new FlatButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: new Icon(
+                                Icons.arrow_back_ios,
+                                color: myColors.secondText,
+                                size: 30.0,
+                              ),
+                              shape: new CircleBorder(),
+                              color: Colors.black12,
+                            )
+                        ),
+                        new Padding(padding: EdgeInsets.only(left: 14)),
                       Text(
                         'Register',
                         style: TextStyle(
@@ -525,47 +598,58 @@ catch (e) {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      ]
+                      ),
                       SizedBox(
                         height:20.0,
                       ),
-                  new Row(
+                  new Column(
                   children: <Widget>[
                     url == null ?   CircleAvatar(
                       radius: 50.0,
                       backgroundImage: NetworkImage("https://clipartart.com/images/clipart-person-silhouette.png"),
-                      //backgroundImage: NetworkImage(url.toString()): _uploadArea(),
-                ):
+                      child :  Align(
+                          alignment: Alignment(6.0, 1.0),
+                          child :  new FlatButton(
+                            onPressed: () {
+                              _getImage();
+                            },
+                            child: new Icon(
+                              Icons.add_a_photo,
+                              color: Colors.white,
+                              size: 20.0,
+                            ),
+                            shape: new CircleBorder(),
+                            color: myColors.green,
+                          )
+                      ),
+                    ):
+                        Column(
+                            children: <Widget>[
                     CircleAvatar(
                       radius: 50.0,
                       backgroundImage: NetworkImage(url.toString()),
-                      //backgroundImage: NetworkImage(url.toString()): _uploadArea(),
-                    ),
-                  new Padding(
-                      padding: EdgeInsets.only(left: 25)),
-                    RaisedButton(
-                      elevation: 5.0,
-                      onPressed: () {
-                         _getImage();
-                      },
-                      padding: EdgeInsets.all(15.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
+                    child :  Align(
+                          alignment: Alignment(6.0, 1.0),
+                          child :  new FlatButton(
+                            onPressed: () {
+                              _getImage();
+                            },
+                            child: new Icon(
+                              Icons.add_a_photo,
+                              color: Colors.white,
+                              size: 20.0,
+                            ),
+                            shape: new CircleBorder(),
+                            color: myColors.green,
+                          )
                       ),
-                      color:Color(0xffAD0514),
-                      child: Text(
-                        "Upload photo",
-                        style: TextStyle(
-                          color:Colors.white,
-                          letterSpacing: 1.5,
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'OpenSans',
-                        ),
-                      ),
+                    )
+                      ]
                     ),
                 ]
                   ),
-                  new Padding(padding: EdgeInsets.all(12)),
+                  new Padding(padding: EdgeInsets.all(8)),
                       SizedBox(
                         height: 10.0,
                       ),
@@ -578,6 +662,7 @@ catch (e) {
                       SizedBox(
                         height: 10.0,
                       ),
+                      Row(children: <Widget>[
                       StreamBuilder<QuerySnapshot>(
                           stream: Firestore.instance.collection('car_types')
                               .snapshots(),
@@ -586,16 +671,21 @@ catch (e) {
                               return Text("loading");
                             }
                             else {
+
                               List<DropdownMenuItem> items = [];
                               for (int i = 0; i <
                                   snapshot.data.documents.length; i++) {
                                 DocumentSnapshot snap = snapshot.data
                                     .documents[i];
+
+                                //cartypes.add(snap.reference,snap["type"].toString());
+
                                 //snapshot.data.documents.map((DocumentSnapshot snap)
+
                                 items.add(
                                   DropdownMenuItem(
                                     child: Text(snap['type'].toString(),
-                                      style: TextStyle(color: Colors.black),),
+                                      style: TextStyle(color: myColors.primaryText,fontFamily: 'OpenSans Regular',fontSize: 14),),
                                     value: "${snap['type'].toString()}",
                                   ),
                                 );
@@ -603,10 +693,14 @@ catch (e) {
                               return Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  Icon(Icons.directions_car, size: 25.0,
-                                    color: Color(0xffAD0514),),
+                              IconButton(
+                              icon: SvgPicture
+                                  .asset(
+                                  "assets/icons/car (1).svg",
+                                  width: 20,
+                                  height: 20,)),
                                   SizedBox(
-                                    width: 50.0,
+                                    width: 8.0,
                                   ),
                                   DropdownButton(
                                     items: items,
@@ -617,9 +711,9 @@ catch (e) {
                                     },
                                     value: selectedCurracy,
                                     isExpanded: false,
-                                    hint: Text("ادخل نوع السياره",
-                                      style: TextStyle(color: Colors.black),),
-                                    focusColor: Color(0xffAD0514),
+                                    hint: Text("car type",
+                                      style: TextStyle(color: myColors.primaryText,fontFamily: 'OpenSans Regular',fontSize: 14),),
+                                    focusColor: myColors.red,
                                   )
                                 ],
                               );
@@ -627,7 +721,7 @@ catch (e) {
                           }
                       ),
                       SizedBox(
-                        height: 15.0,
+                        width: 8.0,
                       ),
                       StreamBuilder<QuerySnapshot>(
                           stream: Firestore.instance.collection('car_model')
@@ -637,16 +731,19 @@ catch (e) {
                               return Text("loading");
                             }
                             else {
+                              //List<Car> car = new List();
                               List<DropdownMenuItem> items = [];
                               for (int i = 0; i <
                                   snapshot.data.documents.length; i++) {
                                 DocumentSnapshot snap = snapshot.data
                                     .documents[i];
+                                //car.add(snap["car_types"]);
+                                //car.add(snap["car_types"]);
                                 //snapshot.data.documents.map((DocumentSnapshot snap)
                                 items.add(
                                   DropdownMenuItem(
                                     child: Text(snap['model'].toString(),
-                                      style: TextStyle(color: Colors.black),),
+                                      style: TextStyle(color: myColors.primaryText,fontFamily: 'OpenSans Regular'),),
                                     value: "${snap['model'].toString()}",
                                   ),
                                 );
@@ -654,10 +751,14 @@ catch (e) {
                               return Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  Icon(Icons.directions_car, size: 25.0,
-                                    color: Color(0xffAD0514),),
+                                  IconButton(
+                                      icon: SvgPicture
+                                          .asset(
+                                        "assets/icons/car (1).svg",
+                                        width: 20,
+                                        height: 20,)),
                                   SizedBox(
-                                    width: 50.0,
+                                    width: 8.0,
                                   ),
                                   DropdownButton(
                                     items: items,
@@ -668,30 +769,53 @@ catch (e) {
                                     },
                                     value: selectedCurracy2,
                                     isExpanded: false,
-                                    hint: Text("ماركة السياره",
-                                      style: TextStyle(color: Colors.black),),
-                                    focusColor: Color(0xffAD0514),
+                                    hint: Text("car model",
+                                      style: TextStyle(color: myColors.primaryText,fontFamily: 'OpenSans Regular'),),
+                                    focusColor: myColors.red,
                                   )
                                 ],
                               );
                             }
                           }
                       ),
+                      ]
+                      ),
                       SizedBox(
                         height: 15.0,
                       ),
                       _buildLoginBtn(),
+                      _buildSignupBtn(),
                     ],
                   ),
                 )
+                )
+              ]
               )
-                ]
-                ),
               )
-              )
+      )
           );
   }
 
+}
+class Car extends RegisterPage
+{
+  DocumentReference x;
+  String g;
+  Car(DocumentReference X , String G) {
+    this.x = X;
+    this.g = G;
+    
+  }
+ returnX()
+ {
+   return x;
+  
+  }
+  returnG()
+  {
+    return g;
+
+  }
 }
 
 

@@ -1,18 +1,16 @@
-//import 'dart:html';
-//import 'dart:html';
-
 import'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:salahly/choice.dart';
 import 'package:salahly/loginpage.dart';
 import 'package:salahly/lo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:salahly/utilities.dart';
+import 'package:salahly/myColors.dart' as myColors;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
-
 import 'package:salahly/categories.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:salahly/main.dart';
@@ -35,7 +33,6 @@ class Editprofile extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => new _EditprofileState();
 }
-
 class _EditprofileState extends State<Editprofile> {
   TextEditingController _emailController = new TextEditingController();
   TextEditingController _passwordController = new TextEditingController();
@@ -54,7 +51,7 @@ class _EditprofileState extends State<Editprofile> {
   var selectedCurracy;
   var selectedCurracy2;
   List<String> phonne = [];
-
+  List<DocumentReference> docref = new List();
   String validateEmail(String value) {
     String pattern =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))'
@@ -86,6 +83,7 @@ class _EditprofileState extends State<Editprofile> {
   @override
   // ignore: missing_return
   Widget build(BuildContext context) {
+    var deviceInfo = MediaQuery.of(context);
     Widget _buildEmailTF() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,9 +96,8 @@ class _EditprofileState extends State<Editprofile> {
           Container(
               alignment: Alignment.centerLeft,
               decoration: kBoxDecorationStyle,
-              height: 60.0,
+              height: 55.0,
               child: Form(
-
                 key: formKey,
                 child: TextFormField(
                   controller: _emailController,
@@ -108,20 +105,20 @@ class _EditprofileState extends State<Editprofile> {
                   onSaved: (value1) => _emailController.text = value1,
                   keyboardType: TextInputType.emailAddress,
                   style: TextStyle(
-                    color: Colors.black,
-                    fontFamily: 'OpenSans',
+                    color: myColors.secondText,
+                    fontFamily: 'OpenSans Regular',
                   ),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     errorStyle: TextStyle(
-                        color: Colors.red,
+                        color: myColors.red,
                         fontSize: 15.0,
-                        fontFamily: 'OpenSans'
+                        fontFamily: 'OpenSans Regular'
                     ),
                     contentPadding: EdgeInsets.only(top: 14.0),
                     prefixIcon: Icon(
                       Icons.email,
-                      color: Color(0xffAD0514),
+                      color: myColors.primaryText,
                     ),
                     hintText: 'الايميل',
                     hintStyle: kHintTextStyle,
@@ -146,7 +143,7 @@ class _EditprofileState extends State<Editprofile> {
           Container(
               alignment: Alignment.centerLeft,
               decoration: kBoxDecorationStyle,
-              height: 60.0,
+              height: 55.0,
               child: Form(key: formKey2,
                 child: TextFormField(
                   controller: _nameController,
@@ -156,22 +153,22 @@ class _EditprofileState extends State<Editprofile> {
                   onSaved: (value2) => _nameController.text = value2,
                   keyboardType: TextInputType.emailAddress,
                   style: TextStyle(
-                    color: Colors.black,
-                    fontFamily: 'OpenSans',
+                    color: myColors.secondText,
+                    fontFamily: 'OpenSans Regular',
                   ),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     errorStyle: TextStyle(
-                        color: Colors.red,
+                        color: myColors.red,
                         fontSize: 15.0,
-                        fontFamily: 'OpenSans'
+                        fontFamily: 'OpenSans Regular'
                     ),
                     contentPadding: EdgeInsets.only(top: 14.0),
                     prefixIcon: Icon(
                       Icons.person,
-                      color: Color(0xffAD0514),
+                      color: myColors.primaryText,
                     ),
-                    hintText: 'الاسم',
+                    hintText: 'name',
                     hintStyle: kHintTextStyle,
                   ),
                 ),
@@ -193,7 +190,7 @@ class _EditprofileState extends State<Editprofile> {
           Container(
               alignment: Alignment.centerLeft,
               decoration: kBoxDecorationStyle,
-              height: 60.0,
+              height: 55.0,
               child: Form(
                 key: formKey3,
                 child: TextFormField(
@@ -203,22 +200,22 @@ class _EditprofileState extends State<Editprofile> {
                       (value3) => _phone1Controller.text = value3,
                   keyboardType: TextInputType.phone,
                   style: TextStyle(
-                    color: Colors.black,
-                    fontFamily: 'OpenSans',
+                    color: myColors.secondText,
+                    fontFamily: 'OpenSans Regular',
                   ),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     errorStyle: TextStyle(
-                        color: Colors.red,
+                        color: myColors.red,
                         fontSize: 15.0,
-                        fontFamily: 'OpenSans'
+                        fontFamily: 'OpenSans Regular'
                     ),
                     contentPadding: EdgeInsets.only(top: 14.0),
                     prefixIcon: Icon(
                       Icons.phone,
-                      color: Color(0xffAD0514),
+                      color: myColors.primaryText,
                     ),
-                    hintText: 'رقم التليفون',
+                    hintText: 'phone number',
                     hintStyle: kHintTextStyle,
                   ),
 
@@ -243,27 +240,27 @@ class _EditprofileState extends State<Editprofile> {
           Container(
               alignment: Alignment.centerLeft,
               decoration: kBoxDecorationStyle,
-              height: 60.0,
+              height: 55.0,
               child: Form(
                 child: TextFormField(
                   keyboardType: TextInputType.phone,
                   style: TextStyle(
-                    color: Colors.black,
-                    fontFamily: 'OpenSans',
+                    color: myColors.secondText,
+                    fontFamily: 'OpenSans Regular',
                   ),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     errorStyle: TextStyle(
-                        color: Colors.red,
+                        color: myColors.red,
                         fontSize: 15.0,
-                        fontFamily: 'OpenSans'
+                        fontFamily: 'OpenSans Regular'
                     ),
                     contentPadding: EdgeInsets.only(top: 14.0),
                     prefixIcon: Icon(
                       Icons.phone,
-                      color: Color(0xffAD0514),
+                      color: myColors.primaryText,
                     ),
-                    hintText: 'رقم التليفون الثاني',
+                    hintText: 'second phone number',
                     hintStyle: kHintTextStyle,
                   ),
                   controller: _phone2Controller,
@@ -285,7 +282,7 @@ class _EditprofileState extends State<Editprofile> {
           Container(
               alignment: Alignment.centerLeft,
               decoration: kBoxDecorationStyle,
-              height: 60.0,
+              height: 55.0,
               child: Form(
                 key: formKey4,
                 child: TextFormField(
@@ -296,20 +293,20 @@ class _EditprofileState extends State<Editprofile> {
                   onSaved: (value4) => _birthdayController.text = value4,
                   keyboardType: TextInputType.phone,
                   style: TextStyle(
-                    color: Colors.black,
-                    fontFamily: 'OpenSans',
+                    color: myColors.secondText,
+                    fontFamily: 'OpenSans Regular',
                   ),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     errorStyle: TextStyle(
-                        color: Colors.red,
+                        color: myColors.red,
                         fontSize: 15.0,
-                        fontFamily: 'OpenSans'
+                        fontFamily: 'OpenSans Regular'
                     ),
                     contentPadding: EdgeInsets.only(top: 14.0),
                     prefixIcon: Icon(
                       Icons.calendar_today,
-                      color: Color(0xffAD0514),
+                      color: myColors.primaryText,
                     ),
                     hintText: "السن",
                     hintStyle: kHintTextStyle,
@@ -322,35 +319,28 @@ class _EditprofileState extends State<Editprofile> {
       );
     }
     Future<void> doc() async {
-      if (formKey2.currentState.validate()) {
+      setState(() {
+        phonne.insert(0,_phone1Controller.text);
+        phonne.insert(1,_phone2Controller.text);
+      });
+      if (  formKey2.currentState.validate() &&
+          formKey3.currentState.validate()
+          && formKey4.currentState.validate()) {
         formKey2.currentState.save();
-      }
-      if (formKey3.currentState.validate()) {
         formKey3.currentState.save();
-      }
-      if (formKey4.currentState.validate()) {
         formKey4.currentState.save();
-      }
-      else {
-        setState(() {
-          _autovalidate = true;
-        });
 //    If all data are not valid then start auto validation.
-        setState(() {
-          phonne.add(_phone1Controller.text);
-          phonne.add(_phone2Controller.text);
-        });
-
         DocumentReference docRef = await
         Firestore.instance.collection('clients').add(
             {
               'email': widget.X,
-              'profile_pic': widget.Y,
+              'profile_pic': "https://clipartart.com/images/clipart-person-silhouette.png",
               'phone': phonne,
               'name': _nameController.text,
               'birthday': _birthdayController.text,
               'car_type': selectedCurracy,
               'car_model': selectedCurracy2,
+              'favourite_service_owner':docref,
             });
         //print(docRef.documentID);
         String doc1 = docRef.documentID;
@@ -358,266 +348,276 @@ class _EditprofileState extends State<Editprofile> {
         prefs1.setString('email', widget.X);
         Navigator.of(context).pushNamed('/categories');
       }
-    }
-      Future<void> doc2() async {
-        if (formKey.currentState.validate() ||
-            formKey2.currentState.validate()
-            || formKey4.currentState.validate()
-        ) {
-          // formKey.currentState.save();
-          formKey.currentState.save();
-          formKey2.currentState.save();
-          formKey4.currentState.save();
-        }
-        else {
-//    If all data are not valid then start auto validation.
-          setState(() {
-            _autovalidate = true;
-          });
-        }
+      else {
         setState(() {
-          phonne.add(widget.Z);
-          phonne.add(_phone2Controller.text);
+          _autovalidate = true;
         });
+      }
+    }
+    Future<void> doc2() async {
+      setState(() {
+        phonne.insert(0,widget.Z);
+        phonne.insert(1, _phone2Controller.text);
+      });
+      if ( formKey.currentState.validate() &&
+          formKey2.currentState.validate()
+          && formKey4.currentState.validate()) {
+        formKey.currentState.save();
+        formKey2.currentState.save();
+        formKey4.currentState.save();
+//    If all data are not valid then start auto validation.
         DocumentReference docRef = await
         Firestore.instance.collection('clients').add(
             {
               'email': _emailController.text,
               'phone': phonne,
+              "profile_pic" : "https://clipartart.com/images/clipart-person-silhouette.png",
               'name': _nameController.text,
               'birthday': _birthdayController.text,
               'car_type': selectedCurracy,
               'car_model': selectedCurracy2,
+              'favourite_service_owner':docref,
             });
-        //print(docRef.documentID);
         String doc1 = docRef.documentID;
         SharedPreferences prefs2 = await SharedPreferences.getInstance();
         prefs2.setString('phone', widget.Z);
         Navigator.of(context).pushNamed('/categories');
-      } //if ((widget.Z == "") && (widget.X == "")) {
-      //setState(() => _isTextFieldVisible = true);
-      //}
-      return Scaffold(
-          body: AnnotatedRegion<SystemUiOverlayStyle>(
-              value: SystemUiOverlayStyle.light,
-              child: GestureDetector(
-                  onTap: () => FocusScope.of(context).unfocus(),
-                  child: Stack(
-                    children: <Widget>[
-                      Container(
-                        height: double.infinity,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.white30,
-                              Colors.white,
-
-                            ],
-                          ),
-                        ),
+      }
+      else {
+      setState(() {
+      _autovalidate = true;
+      });
+      }
+    }
+    return Scaffold(
+        body: AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle.light,
+            child: GestureDetector(
+                onTap: () => FocusScope.of(context).unfocus(),
+                child: Stack(
+                  children: <Widget>[
+                    Container(
+                      //height: double.infinity,
+                      width: deviceInfo.size.width,
+                      decoration: BoxDecoration(
+                      color: myColors.background
                       ),
-                      Container(
-                        height: double.infinity,
-                        child: SingleChildScrollView(
-                          physics: AlwaysScrollableScrollPhysics(),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 40.0,
-                            vertical: 120.0,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
+                    ),
+                    Container(
+                      height: deviceInfo.size.height,
+                      width: deviceInfo.size.width,
+                      child: SingleChildScrollView(
+                        physics: AlwaysScrollableScrollPhysics(),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20.0,
+                          vertical: 80.0,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text(
+                              'Complete your data',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontFamily: 'OpenSans',
+                                fontSize: 30.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            ((widget.X != "" || widget.Y != "") || (widget
+                                .X != "" && widget.Y != "")) ?
+                            Column(children: <Widget>[
                               Text(
-                                'Complete your data',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: 'OpenSans',
-                                  fontSize: 30.0,
-                                  fontWeight: FontWeight.bold,
+                                " YOUR EMAIL  ${widget.X}", style: TextStyle(
+                                color: myColors.secondText,
+                                fontFamily: 'OpenSans Regular',
+                                fontSize: 20.0,
                                 ),
                               ),
-                              ((widget.X != "" || widget.Y != "") || (widget
-                                  .X != "" && widget.Y != "")) ?
-                              Column(children: <Widget>[
-                                Text(
-                                  " YOUR EMAIL ${widget.X}", style: TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: 'OpenSans',
-                                  fontSize: 10.0,
-                                  fontWeight: FontWeight.bold,),
-                                ),
-                                Image.network(widget.Y, height: 50,
-                                    width: 50,
-                                    fit: BoxFit.fill)
-                              ],) :
-                              _buildEmailTF(),
-                              _buildnameTF(),
-                              new Padding(padding: EdgeInsets.all(10)),
-                              widget.Z != "" ?
-                              Text("YOUR PHONE NUMBER ${widget.Z}",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: 'OpenSans',
-                                  fontSize: 10.0,
-                                  fontWeight: FontWeight.bold,),) :
-                              _phone1TF(),
-                              new Padding(padding: EdgeInsets.all(10)),
-                              _phone2TF(),
-                              _buildbirthdayTF(),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              StreamBuilder<QuerySnapshot>(
-                                  stream: Firestore.instance.collection(
-                                      'car_types').snapshots(),
-                                  builder: (context, snapshot) {
-                                    if (!snapshot.hasData) {
-                                      return Text("loading");
-                                    }
-                                    else {
-                                      List<DropdownMenuItem> items = [];
-                                      for (int i = 0; i <
-                                          snapshot.data.documents.length; i++) {
-                                        DocumentSnapshot snap = snapshot.data
-                                            .documents[i];
-                                        //snapshot.data.documents.map((DocumentSnapshot snap)
-                                        items.add(
-                                          DropdownMenuItem(
-                                            child: Text(snap['type'].toString(),
-                                              style: TextStyle(
-                                                  color: Colors.black),),
-                                            value: "${snap['type'].toString()}",
-                                          ),
-                                        );
-                                      }
-                                      return Row(
-                                        mainAxisAlignment: MainAxisAlignment
-                                            .center,
-                                        children: <Widget>[
-                                          Icon(Icons.directions_car, size: 25.0,
-                                            color: Color(0xffAD0514),),
-                                          SizedBox(
-                                            width: 50.0,
-                                          ),
-                                          DropdownButton(
-                                            items: items,
-                                            onChanged: (currentValue) {
-                                              setState(() {
-                                                selectedCurracy = currentValue;
-                                              });
-                                            },
-                                            value: selectedCurracy,
-                                            isExpanded: false,
-                                            hint: Text("ادخل نوع السياره",
-                                              style: TextStyle(
-                                                  color: Colors.black),),
-                                            focusColor: Color(0xffAD0514),
-                                          )
-                                        ],
-                                      );
-                                    }
-                                  }
-                              ),
-                              SizedBox(
-                                height: 15.0,
-                              ),
-                              StreamBuilder<QuerySnapshot>(
-                                  stream: Firestore.instance.collection(
-                                      'car_model').snapshots(),
-                                  builder: (context, snapshot) {
-                                    if (!snapshot.hasData) {
-                                      return Text("loading");
-                                    }
-                                    else {
-                                      List<DropdownMenuItem> items = [];
-                                      for (int i = 0; i <
-                                          snapshot.data.documents.length; i++) {
-                                        DocumentSnapshot snap = snapshot.data
-                                            .documents[i];
-                                        //snapshot.data.documents.map((DocumentSnapshot snap)
-                                        items.add(
-                                          DropdownMenuItem(
-                                            child: Text(
-                                              snap['model'].toString(),
-                                              style: TextStyle(
-                                                  color: Colors.black),),
-                                            value: "${snap['model']
-                                                .toString()}",
-                                          ),
-                                        );
-                                      }
-                                      return Row(
-                                        mainAxisAlignment: MainAxisAlignment
-                                            .center,
-                                        children: <Widget>[
-                                          Icon(Icons.directions_car, size: 25.0,
-                                            color: Color(0xffAD0514),),
-                                          SizedBox(
-                                            width: 50.0,
-                                          ),
-                                          DropdownButton(
-                                            items: items,
-                                            onChanged: (currentValue) {
-                                              setState(() {
-                                                selectedCurracy2 = currentValue;
-                                              });
-                                            },
-                                            value: selectedCurracy2,
-                                            isExpanded: false,
-                                            hint: Text("ماركة السياره",
-                                              style: TextStyle(
-                                                  color: Colors.black),),
-                                            focusColor: Color(0xffAD0514),
-                                          )
-                                        ],
-                                      );
-                                    }
-                                  }
-                              ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              RaisedButton(
-                                elevation: 5.0,
-                                onPressed: () {
-                                  if (widget.X == "" && widget.Y == "") {
-                                    doc2();
+                              Image.network(widget.Y, height: 50,
+                                  width: 50,
+                                  fit: BoxFit.fill)
+                            ],) :
+                            _buildEmailTF(),
+                            _buildnameTF(),
+                            new Padding(padding: EdgeInsets.all(10)),
+                            widget.Z != "" ?
+                            Text("YOUR PHONE NUMBER ${widget.Z}",
+                              style: TextStyle(
+                                color: myColors.primaryText,
+                                fontFamily: 'OpenSans Regular',
+                                fontSize: 15.0,
+                              ),):
+                            _phone1TF(),
+                            new Padding(padding: EdgeInsets.all(10)),
+                            _phone2TF(),
+                            _buildbirthdayTF(),
+                            SizedBox(
+                              height: 10.0,
+                            ),
+                            Row(
+                              children: <Widget>[
+                            StreamBuilder<QuerySnapshot>(
+                                stream: Firestore.instance.collection(
+                                    'car_types').snapshots(),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return Text("loading");
                                   }
                                   else {
-                                    doc();
+                                    List<DropdownMenuItem> items = [];
+                                    for (int i = 0; i <
+                                        snapshot.data.documents.length; i++) {
+                                      DocumentSnapshot snap = snapshot.data
+                                          .documents[i];
+                                      //snapshot.data.documents.map((DocumentSnapshot snap)
+                                      items.add(
+                                        DropdownMenuItem(
+                                          child: Text(snap['type'].toString(),
+                                            style: TextStyle(
+                                                color: Colors.black),),
+                                          value: "${snap['type'].toString()}",
+                                        ),
+                                      );
+                                    }
+                                    return Row(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .center,
+                                      children: <Widget>[
+                                        IconButton(
+                                            icon: SvgPicture
+                                                .asset(
+                                              "assets/icons/car (1).svg",
+                                              width: 14,
+                                              height: 14,)),
+                                        SizedBox(
+                                          width: 8.0,
+                                        ),
+                                        DropdownButton(
+                                          items: items,
+                                          onChanged: (currentValue) {
+                                            setState(() {
+                                              selectedCurracy = currentValue;
+                                            });
+                                          },
+                                          value: selectedCurracy,
+                                          isExpanded: false,
+                                          hint: Text("car type",
+                                            style: TextStyle(
+                                                color: myColors.primaryText),),
+                                          focusColor: myColors.red,
+                                        )
+                                      ],
+                                    );
                                   }
-                                  // Navigator.of(context).pushNamed('/categories');
-                                  //Navigator.push(context, new MaterialPageRoute(builder: (context)=>new Home() ));
-                                },
-                                padding: EdgeInsets.all(15.0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                ),
-                                color: Color(0xffAD0514),
-                                child: Text(
-                                  'Save',
+                                }
+                            ),
+                            SizedBox(
+                              height: 15.0,
+                            ),
+                            StreamBuilder<QuerySnapshot>(
+                                stream: Firestore.instance.collection(
+                                    'car_model').snapshots(),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return Text("loading");
+                                  }
+                                  else {
+                                    List<DropdownMenuItem> items = [];
+                                    for (int i = 0; i <
+                                        snapshot.data.documents.length; i++) {
+                                      DocumentSnapshot snap = snapshot.data
+                                          .documents[i];
+                                      //snapshot.data.documents.map((DocumentSnapshot snap)
+                                      items.add(
+                                        DropdownMenuItem(
+                                          child: Text(
+                                            snap['model'].toString(),
+                                            style: TextStyle(
+                                                color: Colors.black),),
+                                          value: "${snap['model']
+                                              .toString()}",
+                                        ),
+                                      );
+                                    }
+                                    return Row(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .center,
+                                      children: <Widget>[
+                                        IconButton(
+                                            icon: SvgPicture
+                                                .asset(
+                                              "assets/icons/car (1).svg",
+                                              width: 14,
+                                              height: 14,)),
+                                        SizedBox(
+                                          width: 8.0,
+                                        ),
+                                        DropdownButton(
+                                          items: items,
+                                          onChanged: (currentValue) {
+                                            setState(() {
+                                              selectedCurracy2 = currentValue;
+                                            });
+                                          },
+                                          value: selectedCurracy2,
+                                          isExpanded: false,
+                                          hint: Text("car model",
+                                            style: TextStyle(
+                                                color: myColors.primaryText),),
+                                          focusColor: myColors.red,
+                                        )
+                                      ],
+                                    );
+                                  }
+                                }
+                            ),
+                      ]
+                    ),
+                            SizedBox(
+                              height: 35.0,
+                            ),
+                            FlatButton(
+                              //elevation: 5.0,
+                              onPressed: () {
+                                if (widget.X == "" && widget.Y == "") {
+                                  doc2();
+                                }
+                                else {
+                                  doc();
+                                }
+                              },
+                              padding: EdgeInsets.all(10.0),
+                              child : Row(children: <Widget>[
+                                Icon(Icons.save,size: 25,color: myColors.green,),
+                                Padding(padding: EdgeInsets.only(left: 28)),
+                                VerticalDivider(width: 30,),
+                                Text(
+                                  'Save changes',
                                   style: TextStyle(
-                                    color: Colors.white,
-                                    letterSpacing: 1.5,
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'OpenSans',
+                                    color:myColors.green,
+                                    letterSpacing: 1.2,
+                                    fontSize: 22.0,
+                                    fontFamily: 'OpenSans SemiBold',
                                   ),
                                 ),
+                              ],
                               ),
-                            ],
-                          ),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  side: BorderSide(color: myColors.green)
+                              ),
+                              color: myColors.background,
+                            ),
+                          ],
                         ),
-                      )
-                    ],
-                  )
-              )
-          )
-      );
-    }
+                      ),
+                    )
+                  ],
+                )
+            )
+        )
+    );
   }
-
-
+}

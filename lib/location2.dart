@@ -1,11 +1,14 @@
-//import 'dart:html';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_rating/flutter_rating.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:salahly/go.dart';
+import 'package:salahly/myColors.dart' as myColors;
+import 'package:flutter_svg/svg.dart';
 import 'package:salahly/servicedetails.dart';
+import 'package:geolocator/geolocator.dart';
+//import 'package:salahly/servicedetails.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' show cos, sqrt, asin;
 import 'chat.dart';
@@ -20,9 +23,11 @@ List <double> rating=new List();
 bool check=true;
 
 
+
 List <DocumentReference>fav=new List();
 
 class location2 extends StatefulWidget {
+  static String id="location2";
   double lat2;
   double long2;
   DocumentReference Splz;
@@ -108,35 +113,29 @@ class _location2State extends State<location2> {
     );*/
     var z;
 
-int starCount = 5;
+    int starCount = 5;
     Color cc=Color.fromRGBO(31, 58, 147, 1);
     return new Scaffold(
       appBar: new AppBar(
+
         //  title: new Text('Flutter Demo'),
-        backgroundColor: Color.fromRGBO(31, 58, 147, 1),
+        backgroundColor: myColors.red,
         centerTitle: true,
 
         title: Text(
-          "salahly",
+
+          "S A L A H L Y",
           textAlign: TextAlign.right,
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios),
           onPressed: () {
-            //_select(choices[0]);
+            Navigator.of(context).pop();
           },
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.menu),
-            onPressed: () {
-              //_select(choices[0]);
-            },
-          ),
-        ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance.collection('service').where("specialization",isEqualTo: widget.Splz).snapshots(),
+          stream: Firestore.instance.collection('service').where("specialization",isEqualTo: widget.Splz).where("active",isEqualTo:true).snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (!snapshot.hasData)
@@ -161,7 +160,7 @@ int starCount = 5;
                   print(pp);
                   print("Inside");
                   GeoPoint x = doc["location"];
-                    rating.add(doc["rating"]);
+                  rating.add(doc["rating"]);
                   listname.add(doc["name"]);
                   img.add(doc["image"]);
                   phone.add(doc["phone"].toString());
@@ -191,210 +190,159 @@ int starCount = 5;
                           ),
                           child:
                           new Container(
+                            alignment: Alignment.topLeft,
                             //color: Colors.white,
                             child:
                             new Column(
                               children: <Widget>[
                                 new Padding(padding: EdgeInsets.all(50)),
                                 new Container(
-                                    decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                                        border: Border.all(
-                                          color: Colors.black,
-                                          width: 2,
-                                        )),
-                                    child:new Column(
-                                      children: <Widget>[
-                                        new Row(
-                                          children: <Widget>[
-                                            new Padding(
-                                                padding: EdgeInsets.only(left: 10)),
-                                            new CircleAvatar(
-                                              child: new Icon(Icons.person),
-                                              backgroundColor:  Color.fromRGBO(31, 58, 147, 1),
-                                            ),
-                                            new Padding(
-                                                padding: EdgeInsets.only(left: 12)),
-                                            new FlatButton(
-                                                onPressed: () {
-                                                  Navigator.push(
+                                  color: Colors.white,
+                                  alignment: Alignment.topLeft,
+                                  child:new Column(
+                                    children: <Widget>[
+
+                                      new Row(children: <Widget>[
+                                        new FlatButton(
+                                            onPressed: () {
+                                              Navigator.push(
                                                       context,
                                                       new MaterialPageRoute(
                                                           builder: (context) =>
-                                                          new detailsserives2(c[index].toString(), c[index].toString(),listid[index].toString())));
-                                                },
-                                                child: new Text(
-                                                  c[index].toString(),
-                                                  style: new TextStyle(
-                                                      color:  Color.fromRGBO(31, 58, 147, 1),
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 13),
-                                                )),
-                                            new Padding(
-                                                padding: EdgeInsets.only(left: 1)),
+                                                          new detailsserives2(c[index].toString(), c[index].toString(),listid[index].toString(),c[index].reference(),widget.g,c[index].lat,
+                                                          c[index].lang)));
+                                            },
+                                            child: new Text(
+                                              c[index].toString(),
+                                              style: new TextStyle(
+                                                  color:  Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 13),
+                                            )),
+                                        SizedBox(width: MediaQuery.of(context).size.width/3),
+                                        new FlatButton(
+                                            onPressed: (){
+                                              check=true;
+                                              Firestore.instance.collection('clients')
+                                                  .snapshots().listen((data) => data.documents.forEach((doc) {
+                                                if(widget.g==doc.reference) {
+                                                  print(doc["favourite_service_owner"].toString());
+                                                  for(int i=0;i<fav.length;i++) {
+                                                    if (fav[i] == c[index].reference()){
 
-                                            new FlatButton(
-                                              onPressed: () {
-                                                Navigator.push(
-                                                    context,
-                                                    new MaterialPageRoute(
-                                                        builder: (context) => new Chat(
-                                                          serivce_owner:c[index].reference() ,
-                                                          user: widget.g,
-                                                        )));
-                                              },
-                                              child: new Icon(
-                                                Icons.chat,
-                                                color:  Color.fromRGBO(31, 58, 147, 1),
-                                              ),
-                                            ),
-                                            new Padding(
-                                                padding: EdgeInsets.only(left: 1)),
-                                            new FlatButton(
-                                              onPressed: () => launch("tel:${c[index].getphone()}"),
-                                              child: new Icon(
-                                                Icons.call,
-                                                color:  Color.fromRGBO(31, 58, 147, 1),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        new Padding(padding: EdgeInsets.all(10)),
-                                        new Row(
-                                          children: <Widget>[
-                                            //new RaisedButton.icon(onPressed: ()=>"d", icon:new Icon( Icons.favorite_border,color: Colors.grey,), )
-                                            new FlatButton(
-                                                onPressed: (){
-                                                  check=true;
-                                                  Firestore.instance.collection('clients')
-                                                      .snapshots().listen((data) => data.documents.forEach((doc) {
-                                                    if(widget.g==doc.reference) {
-                                                      print(doc["favourite_service_owner"].toString());
-                                                      for(int i=0;i<fav.length;i++) {
-                                                        if (fav[i] == c[index].reference()){
-
-                                                        }
-
-                                                      }
-
-                                                      fav = List.from(doc["favourite_service_owner"]);
-                                                      if (check == true) {
-                                                        fav.add(c[index].reference());
-                                                        print(fav.length);
-                                                        if (fav .length>0) {
-
-                                                          Firestore.instance.collection("clients")
-                                                              .document(doc.documentID)
-                                                              .updateData(({
-                                                            "favourite_service_owner": fav
-                                                          }));
-
-                                                          check = false;
-                                                        }
-                                                        else {
-                                                          fav=new List();
-                                                          Firestore.instance.collection("clients")
-                                                              .document(doc.documentID)
-                                                              .setData(
-                                                              ({
-                                                                "favourite_service_owner": fav
-                                                              }));
-                                                          check = false;
-                                                        }
-                                                      }
                                                     }
+
                                                   }
 
-                                                  ));
+                                                  fav = List.from(doc["favourite_service_owner"]);
+                                                  if (check == true) {
+                                                    fav.add(c[index].reference());
+                                                    print(fav.length);
+                                                    if (fav .length>0) {
 
-                                                  /*else{
+                                                      Firestore.instance.collection("clients")
+                                                          .document(doc.documentID)
+                                                          .updateData(({
+                                                        "favourite_service_owner": fav
+                                                      }));
 
-    Firestore.instance.collection('clients').where("email",isEqualTo: widget.g).limit(1).snapshots().listen((onData) {
-      onData.documents.forEach((f) {
-        fav = List.from(f["favourite_service_owner"]);
-        if (fav != null) {
-          fav.add(c[index].reference());
-          for(int i=0;i<fav.length;i++){
-            if(fav[i]==c[index].reference()){
-              fav.removeAt(i);
-            }
-          }
-          Firestore.instance.collection("clients")
-              .document(f.documentID)
-              .updateData(({
-            "favourite_service_owner": fav
-          }));
-        }
-      });
-    });
-    cc=Color.fromRGBO(31, 58, 147, 1);
-                                                check=true;
-                                              }*/
+                                                      check = false;
+                                                    }
+                                                    else {
+                                                      fav=new List();
+                                                      Firestore.instance.collection("clients")
+                                                          .document(doc.documentID)
+                                                          .setData(
+                                                          ({
+                                                            "favourite_service_owner": fav
+                                                          }));
+                                                      check = false;
+                                                    }
+                                                  }
+                                                }
+                                              }
 
-                                                },
-                                                child: new Icon(
-                                                    Icons.favorite,
-                                                    color:check==true?     Colors.red:cc//Color.fromRGBO(31, 58, 147, 1),
-                                                )),
-                                            new Padding(
-                                                padding: EdgeInsets.only(left: 20)),
-                                            new StarRating(
-                                              size: 25.0,
-                                              rating:rating[index],
-                                              color: Colors.orange,
-                                              borderColor: Colors.grey,
-                                              starCount: starCount,
-                                            ),
-                                            new Padding(
-                                                padding: EdgeInsets.only(left: 30)),
-                                            new Text(
-                                              c[index].getDistance() + " " + "km",
-                                              style: new TextStyle(color:  Color.fromRGBO(31, 58, 147, 1)),
-                                            )
-                                          ],
-                                        )
+                                              ));
+                                            },
+                                            child: new Icon(
+                                                Icons.favorite,
+                                                color:check==true?     Colors.red:cc//Color.fromRGBO(31, 58, 147, 1),
+                                            )),
+                                      ],),
+
+                                      new Row(children: <Widget>[
+                                        new Padding(
+                                            padding: EdgeInsets.only(left: 20)),
+                                        new StarRating(
+                                          size: 25.0,
+                                          rating:rating[index],
+                                          color: Colors.orange,
+                                          borderColor: Colors.grey,
+                                          starCount: starCount,
+                                        ),
+                                        new Padding(
+                                            padding: EdgeInsets.only(left: MediaQuery.of(context).size.width/3-40)),
+                                        new Text(
+                                            c[index].getDistance() + " " + "km",
+                                            style: new TextStyle(color:  myColors.red,fontFamily: 'OpenSans SemiBold')),
+
+                                      ],),
+                                      new Divider(color: Colors.grey,),
+                                      new Row(children: <Widget>[
+                                        new FlatButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                                context,
+                                                new MaterialPageRoute(
+                                                    builder: (context) => new Chat(
+                                                      serivce_owner:c[index].reference() ,
+                                                      user: widget.g,
+                                                    )));
+                                          },
+                                          child: SvgPicture.asset(
+                                            "assets/icons/chat.svg",
+                                            width: 24,
+                                            height: 24,
+
+                                          ),
+                                        ),
+                                        SizedBox(width: 10,),
+                                        new Container(color: Colors.grey,width: 1,height: 20,),
+                                        SizedBox(width: 10,),
+                                        new FlatButton(
+
+                                          onPressed: () => launch("tel:${c[index].getphone()}"),
+                                          child: SvgPicture.asset(
+                                            "assets/icons/phone.svg",
+                                            width: 24,
+                                            height: 24,
+                                            color: myColors.green,
+                                          ),
+                                        ),
+                                        new Container(color: Colors.grey,width: 1,height: 20,),
+                                        SizedBox(width: 10,),
+                                        SizedBox(width: 10,),
+                                        new FlatButton(
+                                          onPressed: () =>  MapUtils.openMap(c[index].lat,c[index].lang),
+                                          child:  SvgPicture.asset(
+                                            "assets/icons/location-arrow.svg",
+                                            width: 24,
+                                            height: 24,
+                                            color: myColors.red,
+                                          ),),
                                       ],
-                                    )),
+                                      ),
+                                    ],),
+                                ),
                               ],
                             ),
-
                           )));
                     });
             }
-          })
-      ,
-      bottomNavigationBar: BottomNavigationBar(
-        //fixedColor: Colors.grey,
-        backgroundColor: Colors.grey,
-        selectedItemColor: Color.fromRGBO(31, 58, 147, 1),
-        unselectedItemColor: Colors.grey,
+          }),
 
-        currentIndex: 0,
-        // this will be set when a new tab is tapped
-        items: [
-          BottomNavigationBarItem(
-            icon: new Icon(Icons.home),
-            title: new Text(
-              'Home',
-              style: new TextStyle(color: Colors.grey),
-            ),
-          ),
-          BottomNavigationBarItem(
-            icon: new Icon(Icons.favorite),
-            title: new Text('person', style: new TextStyle(color: Colors.grey)),
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.chat),
-              title: Text('chat', style: new TextStyle(color: Colors.grey))),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              title: Text('person', style: new TextStyle(color: Colors.grey))),
-        ],
-      ),);
+    );
   }
-
-
 
 
   List sortList( ) {
@@ -402,7 +350,8 @@ int starCount = 5;
 
     //SharedPreferences prefs2 = await SharedPreferences.getInstance();
     //double lat = prefs2.getDouble("lat");
-    //double long = prefs2.getDouble("long");
+    //double long = prefs2.getDouble("l
+    // ong");
     c = new List();
 
     print('at sort list court: ${listcour.toString()}');
@@ -414,7 +363,7 @@ int starCount = 5;
       c.add(
         new Pair(
             calculateDistance(widget.lat2,
-              widget.long2, v.latitude, v.longitude),
+                widget.long2, v.latitude, v.longitude),
             v.latitude,
             v.longitude,
             listname[i],
@@ -469,18 +418,14 @@ class Pair implements Comparable<Pair> {
   String name;
   DocumentReference Re;
   String  phone;
-
   String toString() => "${name}";
-
   String getDistance() {
     int distancr = distance.toInt();
     return distancr.toString();
   }
-
   DocumentReference reference() {
     return Re;
   }
-
   Pair(double distance, double lat, double lang, String name,
       DocumentReference t,String phone) {
     this.distance = distance;
@@ -490,7 +435,6 @@ class Pair implements Comparable<Pair> {
     this.Re = t;
     this.phone=phone;
   }
-
   @override
   int compareTo(Pair p) {
     // TODO: implement compareTo
@@ -522,4 +466,3 @@ class StarRating2 extends StatelessWidget {
     );
   }
 }
-
